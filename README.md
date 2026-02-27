@@ -7,7 +7,7 @@ A standalone, version-controlled collection of [Claude Code skills](https://docs
 ### First machine (clone)
 
 ```sh
-git clone <repo-url> ~/Documents/code/claude/skills
+git clone git@github.com:randallli/claude-skills.git ~/Documents/code/claude/skills
 ln -s ~/Documents/code/claude/skills ~/.claude/skills
 ```
 
@@ -21,6 +21,10 @@ Each skill lives in its own directory with a `SKILL.md` file:
 
 ```
 skills/
+├── create-pr/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── run_tests.sh
 ├── merge-pr/
 │   └── SKILL.md
 └── your-skill/

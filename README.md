@@ -50,3 +50,4 @@ git commit -m "Add my-skill"
 |-------|-------------|
 | `create-pr` | Push branch, create PR immediately, then run tests/linter and push fixes |
 | `merge-pr` | Squash-merge the most recent PR and create a new branch for continued development |
+| `oPlan` | Lead Architect (Opus) — analyze a GitHub issue and post a TDD plan as a GitHub comment |

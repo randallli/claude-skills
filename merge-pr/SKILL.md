@@ -8,8 +8,12 @@ Squash and merge the most recent PR, then create a new branch for continued deve
    - Summary of changes
    - Test stats (X passing, +Y new)
    - "Fixes #<issue>"
-4. **Update master**: `git checkout master && git pull`
-5. **Create new branch** (REQUIRED - do not stay on master):
+4. **Switch to worktree safe branch**:
+   - Determine the worktree folder name: `basename $(git rev-parse --show-toplevel)`
+   - `git fetch origin`
+   - `git checkout <worktree-folder-name>` — if it doesn't exist, `git checkout -b <worktree-folder-name> origin/main`
+   - `git pull`
+5. **Create new branch** (REQUIRED - do not stay on the worktree branch):
    - Use the branch name saved from step 1
    - If it ends with `-N` (where N is a number), increment to `-N+1`
    - Otherwise, append `-2` to the branch name

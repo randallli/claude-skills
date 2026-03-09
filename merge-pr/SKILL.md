@@ -8,21 +8,10 @@ Squash and merge the most recent PR, then create a new branch for continued deve
    - Summary of changes
    - Test stats (X passing, +Y new)
    - "Fixes #<issue>"
-4. **Switch to worktree safe branch**:
-   - Determine the worktree folder name: `basename $(git rev-parse --show-toplevel)`
-   - `git fetch origin`
-   - `git checkout <worktree-folder-name>` — if it doesn't exist, `git checkout -b <worktree-folder-name> origin/main`
-   - `git pull`
-5. **Create new branch** (REQUIRED - do not stay on the worktree branch):
-   - Use the branch name saved from step 1
-   - If it ends with `-N` (where N is a number), increment to `-N+1`
-   - Otherwise, append `-2` to the branch name
-   - `git checkout -b <new-branch-name>`
-   - Leave branch clean (no initial commits)
-6. **Delete old local branch** (the one saved in step 1):
-   - `git branch -d <old-branch-name>`
-   - Uses `-d` (safe delete, not `-D`) to prevent accidental deletion of unmerged work
-   - If deletion fails (branch has unmerged changes), warn the user and skip
+4. **Post-merge setup**: `bash ~/.claude/skills/merge-pr/scripts/post-merge.sh <old-branch-name>`
+   - Switches to worktree-safe branch (or creates one from origin/main)
+   - Creates new dev branch (increments `-N` suffix or appends `-2`)
+   - Deletes old branch with safe delete (`-d`)
 
 ## Summary Format
 

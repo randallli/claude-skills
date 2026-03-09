@@ -7,6 +7,7 @@ OLD_BRANCH="${1:?Usage: post-merge.sh <old-branch-name>}"
 
 WORKTREE_NAME="$(basename "$(git rev-parse --show-toplevel)")"
 git fetch origin
+git branch -f main origin/main 2>/dev/null || true
 
 if git rev-parse --verify "$WORKTREE_NAME" >/dev/null 2>&1; then
   git checkout "$WORKTREE_NAME"

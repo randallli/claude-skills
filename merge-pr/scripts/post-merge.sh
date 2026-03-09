@@ -1,20 +1,12 @@
 #!/usr/bin/env bash
-# Post-merge: switch to worktree-safe branch, create new dev branch, delete old branch.
+# Post-merge: create new dev branch from origin/main, delete old branch.
 # Usage: post-merge.sh <old-branch-name>
 set -euo pipefail
 
 OLD_BRANCH="${1:?Usage: post-merge.sh <old-branch-name>}"
 
-WORKTREE_NAME="$(basename "$(git rev-parse --show-toplevel)")"
 git fetch origin
 git branch -f main origin/main 2>/dev/null || true
-
-if git rev-parse --verify "$WORKTREE_NAME" >/dev/null 2>&1; then
-  git checkout "$WORKTREE_NAME"
-else
-  git checkout -b "$WORKTREE_NAME" origin/main
-fi
-git pull
 
 # Create new branch (increment suffix)
 if [[ "$OLD_BRANCH" =~ ^(.*)-([0-9]+)$ ]]; then
@@ -24,7 +16,7 @@ if [[ "$OLD_BRANCH" =~ ^(.*)-([0-9]+)$ ]]; then
 else
   NEW_BRANCH="${OLD_BRANCH}-2"
 fi
-git checkout -b "$NEW_BRANCH"
+git checkout -b "$NEW_BRANCH" origin/main
 echo "New branch: $NEW_BRANCH"
 
 # Delete old local branch (safe delete)

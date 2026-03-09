@@ -9,8 +9,7 @@ Squash and merge the most recent PR, then create a new branch for continued deve
    - Test stats (X passing, +Y new)
    - "Fixes #<issue>"
 4. **Post-merge setup**: `bash ~/.claude/skills/merge-pr/scripts/post-merge.sh <old-branch-name>`
-   - Switches to worktree-safe branch (or creates one from origin/main)
-   - Creates new dev branch (increments `-N` suffix or appends `-2`)
+   - Creates new dev branch from origin/main (increments `-N` suffix or appends `-2`)
    - Deletes old branch with safe delete (`-d`)
 
 ## Summary Format

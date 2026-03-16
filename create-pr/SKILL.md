@@ -9,10 +9,9 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
    - Create PR: `gh pr create`
    - **Report the PR URL to the user immediately**
 
-2. **Run local tests (two separate Bash calls — do NOT chain with &&):**
-   - If the project has `./scripts/run_tests.sh`, use it
+2. **Run local tests:**
+   - If the project has `./scripts/run_tests.sh`, use it (prints summary automatically)
    - Otherwise, run: `bash ~/.claude/skills/create-pr/scripts/run_tests.sh`
-   - Parse results: `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
    - Analyze failures, fix them, re-run to verify
 
 3. **Run linter/analyzer:**

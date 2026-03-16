@@ -36,9 +36,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
 3. **Phase 1: Red (Write Failing Test)**
    - Write the test file for the next incomplete task
-   - Run tests (two separate Bash calls - do NOT chain with &&):
-     - **Call 1:** `./scripts/run_tests.sh <test_file>`
-     - **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
    - **Verify the test FAILS.** If it passes:
      - Check if the feature already exists
      - Verify you're testing the correct behavior
@@ -46,9 +44,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
 4. **Phase 2: Green (Minimal Implementation)**
    - Write the minimum code required to pass the test
-   - Run tests (two separate Bash calls - do NOT chain with &&):
-     - **Call 1:** `./scripts/run_tests.sh <test_file>`
-     - **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
    - **Verify the test PASSES.**
    - If it fails after 3 attempts, escalate (see below)
 

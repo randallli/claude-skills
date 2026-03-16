@@ -52,17 +52,15 @@ Do this:
    - Report: "GitHub Actions spending limit reached - running checks locally"
    - Skip CI status check and proceed directly to local diagnosis
    - Run all checks locally (use separate Bash calls - do NOT chain with &&):
-     - Unit tests **Call 1:** `./scripts/run_tests.sh `
-     - Unit tests **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+     - Unit tests: `./scripts/run_tests.sh` (prints summary automatically)
      - Integration tests: `./scripts/run_integration_tests.sh` (runs each test file individually)
      - Analyzer **Call 1:** `./scripts/run_analyze.sh `
      - Analyzer **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
    - Continue with normal fix workflow based on local results
 
-2. **Diagnose Issues** (use separate Bash calls - do NOT chain with &&)
+2. **Diagnose Issues**
    - **Test failures**:
-     - **Call 1:** `./scripts/run_tests.sh `
-     - **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+     - `./scripts/run_tests.sh` (prints summary automatically)
    - **Analyzer issues**:
      - **Call 1:** `./scripts/run_analyze.sh `
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
@@ -84,35 +82,33 @@ Do this:
      - `avoid_single_cascade_in_expression_statements`
      - `unused_local_variable` (in some cases)
      - Many other lint rules from very_good_analysis
-   - After running, re-check with two-step pattern to see remaining issues
+   - After running, re-check with the scripts above to see remaining issues
 
    **Step 3b: Manual fixes for remaining analyzer issues**
    - `dart fix` does NOT handle these — fix manually:
      - `lines_longer_than_80_chars`: Break long lines appropriately
      - Complex refactoring-style fixes
      - Context-dependent fixes that require understanding intent
-   - Verify with two-step pattern
+   - Verify with the scripts above
 
-   **Step 3c: Test failures** (use separate Bash calls - do NOT chain with &&)
+   **Step 3c: Test failures**
    - Run tests to identify failing cases:
-     - **Call 1:** `./scripts/run_tests.sh `
-     - **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+     - `./scripts/run_tests.sh` (prints summary automatically)
    - Check for:
      - Outdated golden files (regenerate with `flutter test --update-goldens`)
      - Race conditions in async tests
      - Missing mocks or test data
      - State cleanup issues between tests
-   - Fix and verify with same two-step pattern
+   - Fix and verify with same the scripts above
 
    **Step 3d: Build failures**
    - Check `pubspec.yaml` for dependency issues
    - Run `flutter pub get`
    - Check for platform-specific configuration issues
 
-4. **Verify Fixes** (use separate Bash calls - do NOT chain with &&)
+4. **Verify Fixes**
    - Run tests to ensure all tests pass:
-     - **Call 1:** `./scripts/run_tests.sh `
-     - **Call 2:** `grep '^{' ./tmp/test_results.json | jq -c 'select(.type == "error" or .type == "done")'`
+     - `./scripts/run_tests.sh` (prints summary automatically)
    - Run analyzer to confirm issues reduced/eliminated:
      - **Call 1:** `./scripts/run_analyze.sh `
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`

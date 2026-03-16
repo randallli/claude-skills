@@ -6,6 +6,8 @@
 # Options:
 #   --fast    Exclude golden tests for faster feedback
 
+# Exit on error; pipefail ensures a failure in any pipeline stage
+# (e.g., flutter crashing) isn't masked by a later command's exit code.
 set -eo pipefail
 
 # Use half of CPU cores (leaves headroom for other processes)

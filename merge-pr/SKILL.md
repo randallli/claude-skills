@@ -1,3 +1,8 @@
+---
+name: merge-pr
+description: Squash and merge the most recent PR, then create a new branch for continued development
+---
+
 Squash and merge the most recent PR, then create a new branch for continued development.
 
 ## Steps

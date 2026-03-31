@@ -1,6 +1,7 @@
 ---
+name: hExecute
 model: haiku
-description: TDD Executor (Haiku) - Tests first, then Code
+description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at a time using Red-Green-Refactor discipline
 ---
 
 # TDD Executor Instructions
@@ -14,10 +15,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 ## Steps
 
 1. **Fetch the Plan:**
-   ```bash
-   gh issue view <issue#> --json comments --jq '.comments | map(select(.body | contains("## TDD Plan"))) | last | .body'
-   ```
-   Parse the plan to find the next unchecked task (`- [ ]`).
+   Use MCP GitHub tools (not `gh` CLI) to read the issue comments. Find the most recent comment containing `## TDD Plan` and parse it to find the next unchecked task (`- [ ]`).
 
 2. **Create/Switch to Task Branch:**
    Create a branch name from the issue number and task description:
@@ -56,20 +54,15 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
 
 6. **Update Progress on GitHub:**
-   Post a comment with the task status:
-   ```bash
-   gh issue comment <issue#> --body "$(cat <<'EOF'
-   ### Task Completed: <task description>
-
-   **Test:** `<test_file>` - PASSING
-   **Impl:** `<impl_file>`
-   **Status:** Done
-
-   ---
-   *Completed by /hExecute*
-   EOF
-   )"
-   ```
+   Use MCP GitHub tools to post a comment on the issue:
+   > ### Task Completed: \<task description\>
+   >
+   > **Test:** `<test_file>` - PASSING
+   > **Impl:** `<impl_file>`
+   > **Status:** Done
+   >
+   > ---
+   > *Completed by /hExecute*
 
 ## Escalation
 
@@ -79,22 +72,19 @@ If you encounter any of these situations, STOP and escalate:
 - Architectural decision needed that wasn't covered in the plan
 - Unclear requirements or ambiguous task description
 
-To escalate:
-```bash
-gh issue comment <issue#> --body "$(cat <<'EOF'
-### Escalation Required
+To escalate, use MCP GitHub tools to:
 
-**Task:** <task description>
-**Blocker:** <what's preventing progress>
-**Attempted:** <what you tried>
+1. Post a comment on the issue:
+   > ### Escalation Required
+   >
+   > **Task:** \<task description\>
+   > **Blocker:** \<what's preventing progress\>
+   > **Attempted:** \<what you tried\>
+   >
+   > ---
+   > *Escalated by /hExecute - needs /oPlan review*
 
----
-*Escalated by /hExecute - needs /oPlan review*
-EOF
-)"
-
-gh issue edit <issue#> --add-label "tdd-escalation"
-```
+2. Add the `tdd-escalation` label to the issue.
 
 Then report: "Escalated to issue #<N>. Run `/oPlan <issue#>` to revise the plan."
 

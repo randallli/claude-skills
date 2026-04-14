@@ -109,5 +109,6 @@ If this command is invoked because `/hExecute` escalated:
 
 ## Output
 
-Summarize the plan. End with:
-> "TDD Plan posted to issue #<N>. Run `/hExecute <issue#>` to begin implementation."
+After posting the plan comment, capture the comment URL from the MCP tool response. Summarize the plan and end with:
+> "TDD Plan posted to issue #<N>. Review the full plan: <comment_url>
+> Run `/hExecute <issue#>` to begin implementation."

@@ -51,22 +51,22 @@ Do this:
    If CI returns "spending limit" error or Actions are disabled:
    - Report: "GitHub Actions spending limit reached - running checks locally"
    - Skip CI status check and proceed directly to local diagnosis
-   - Run all checks locally (use separate Bash calls - do NOT chain with &&):
+   - Run all checks locally as parallel Bash calls (multiple tool calls in one message — do NOT chain with &&):
      - Unit tests: `./scripts/run_tests.sh` (prints summary automatically)
      - Integration tests: `./scripts/run_integration_tests.sh` (runs each test file individually)
-     - Analyzer **Call 1:** `./scripts/run_analyze.sh `
-     - Analyzer **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
+     - Analyzer: `./scripts/run_analyze.sh`
+   - After all complete, parse analyzer: `grep 'issues found' ./tmp/analyze_results.txt`
    - Continue with normal fix workflow based on local results
 
-2. **Diagnose Issues**
-   - **Test failures**:
+2. **Diagnose Issues** (run independent checks as parallel Bash calls — multiple tool calls in one message):
+   - **In parallel:**
      - `./scripts/run_tests.sh` (prints summary automatically)
-   - **Analyzer issues**:
-     - **Call 1:** `./scripts/run_analyze.sh `
-     - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
-   - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed
+     - `./scripts/run_analyze.sh`
+     - `./scripts/run_integration_tests.sh` (if integration tests failed; may require specific setup)
+   - **After all complete:**
+     - `grep 'issues found' ./tmp/analyze_results.txt` (parse analyzer output)
+     - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed
    - **Build failures**: Check for dependency or configuration issues
-   - **Integration test failures**: Note that these may require specific setup
    - **Count total issues** to determine if splitting is needed (many may be auto-fixable)
 
 3. **Apply Fixes (Incrementally)**
@@ -106,12 +106,12 @@ Do this:
    - Run `flutter pub get`
    - Check for platform-specific configuration issues
 
-4. **Verify Fixes**
-   - Run tests to ensure all tests pass:
+4. **Verify Fixes** (run tests and analyzer as parallel Bash calls in one message):
+   - **In parallel:**
      - `./scripts/run_tests.sh` (prints summary automatically)
-   - Run analyzer to confirm issues reduced/eliminated:
-     - **Call 1:** `./scripts/run_analyze.sh `
-     - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
+     - `./scripts/run_analyze.sh`
+   - **After both complete:**
+     - `grep 'issues found' ./tmp/analyze_results.txt`
    - Create summary of changes made
    - **Check if more fixes remain** - if yes, plan next incremental fix
 

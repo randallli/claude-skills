@@ -9,14 +9,10 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
    - Create PR: `gh pr create`
    - **Report the PR URL to the user immediately**
 
-2. **Run local tests:**
-   - If the project has `./scripts/run_tests.sh`, use it (prints summary automatically)
-   - Otherwise, run: `bash ~/.claude/skills/create-pr/scripts/run_tests.sh`
-   - Analyze failures, fix them, re-run to verify
-
-3. **Run linter/analyzer:**
-   - Use the project's lint command
-   - Fix any issues, re-run to verify clean output
+2. **Run local tests and linter in parallel** (two Bash tool calls in one message):
+   - **Tests:** If the project has `./scripts/run_tests.sh`, use it (prints summary automatically). Otherwise, run: `bash ~/.claude/skills/create-pr/scripts/run_tests.sh`
+   - **Linter:** Use the project's lint command
+   - Analyze failures from both, fix them, re-run to verify
 
 4. **Push follow-up commits (if fixes were made):**
    - `git add <files>`
@@ -26,7 +22,7 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
 ## Notes
 
 - Create PR first so CI starts running in parallel with local validation
-- Run tests and linter as separate Bash calls — do NOT chain with `&&`
+- Run tests and linter as parallel Bash calls (two tool calls in one message) — do NOT chain with `&&`
 - Follow-up commits appear in PR history for transparency
 - Always run against the base branch (usually `main`)
 

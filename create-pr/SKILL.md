@@ -14,7 +14,7 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
    - **Linter:** Use the project's lint command
    - Analyze failures from both, fix them, re-run to verify
 
-4. **Push follow-up commits (if fixes were made):**
+3. **Push follow-up commits (if fixes were made):**
    - `git add <files>`
    - `git commit -m "fix: ..."`
    - `git push`

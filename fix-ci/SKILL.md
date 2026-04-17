@@ -62,7 +62,7 @@ Do this:
    - **In parallel:**
      - `./scripts/run_tests.sh` (prints summary automatically)
      - `./scripts/run_analyze.sh`
-     - `./scripts/run_integration_tests.sh` (if integration tests failed)
+     - `./scripts/run_integration_tests.sh` (if integration tests failed; may require specific setup)
    - **After all complete:**
      - `grep 'issues found' ./tmp/analyze_results.txt` (parse analyzer output)
      - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed

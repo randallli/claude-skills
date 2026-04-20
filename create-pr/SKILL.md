@@ -7,7 +7,6 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
    - Analyze changes: `git diff main...HEAD`
    - Generate PR title and body, use project PR template if available
    - Create PR: `gh pr create`
-   - **Report the PR URL to the user immediately**
 
 2. **Launch tests and linter in the background** (use `run_in_background: true` on each Bash call — do NOT chain with `&&`):
    - **Tests:** If the project has `./scripts/run_tests.sh`, use it. Otherwise, run: `bash ~/.claude/skills/create-pr/scripts/run_tests.sh`

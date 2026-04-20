@@ -51,19 +51,19 @@ Do this:
    If CI returns "spending limit" error or Actions are disabled:
    - Report: "GitHub Actions spending limit reached - running checks locally"
    - Skip CI status check and proceed directly to local diagnosis
-   - Run all checks locally as parallel Bash calls (multiple tool calls in one message — do NOT chain with &&):
+   - Launch all checks in background (`run_in_background: true` — do NOT chain with &&):
      - Unit tests: `./scripts/run_tests.sh` (prints summary automatically)
      - Integration tests: `./scripts/run_integration_tests.sh` (runs each test file individually)
      - Analyzer: `./scripts/run_analyze.sh`
-   - After all complete, parse analyzer: `grep 'issues found' ./tmp/analyze_results.txt`
+   - When all complete, parse analyzer: `grep 'issues found' ./tmp/analyze_results.txt`
    - Continue with normal fix workflow based on local results
 
-2. **Diagnose Issues** (run independent checks as parallel Bash calls — multiple tool calls in one message):
-   - **In parallel:**
+2. **Diagnose Issues** (launch checks in background with `run_in_background: true` — do NOT chain with &&):
+   - **Launch in background:**
      - `./scripts/run_tests.sh` (prints summary automatically)
      - `./scripts/run_analyze.sh`
      - `./scripts/run_integration_tests.sh` (if integration tests failed; may require specific setup)
-   - **After all complete:**
+   - **When results arrive:**
      - `grep 'issues found' ./tmp/analyze_results.txt` (parse analyzer output)
      - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed
    - **Build failures**: Check for dependency or configuration issues
@@ -106,11 +106,11 @@ Do this:
    - Run `flutter pub get`
    - Check for platform-specific configuration issues
 
-4. **Verify Fixes** (run tests and analyzer as parallel Bash calls in one message):
-   - **In parallel:**
+4. **Verify Fixes** (launch in background with `run_in_background: true`):
+   - **Launch in background:**
      - `./scripts/run_tests.sh` (prints summary automatically)
      - `./scripts/run_analyze.sh`
-   - **After both complete:**
+   - **When both complete:**
      - `grep 'issues found' ./tmp/analyze_results.txt`
    - Create summary of changes made
    - **Check if more fixes remain** - if yes, plan next incremental fix

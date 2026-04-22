@@ -8,7 +8,9 @@ Squash and merge the most recent PR, then create a new branch for continued deve
 ## Steps
 
 1. **Save current branch name**: `git branch --show-current` (save this for step 4)
-2. **Check PR status**: `gh pr view <number> --json mergeable,reviewDecision`
+2. **Check PR status**: `gh pr view <number> --json mergeable,reviewDecision,statusCheckRollup`
+   - If CI checks are still running: `gh pr checks <number> --watch` (wait for completion)
+   - If CI fails: stop and report — do not merge
 3. **Merge**: `gh pr merge <number> --squash --delete-branch` with commit message including:
    - Summary of changes
    - Test stats (X passing, +Y new)

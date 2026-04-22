@@ -29,3 +29,9 @@ Squash and merge the most recent PR, then create a new branch for continued deve
 - New branch: <branch-name>
 - Ready for next task
 ```
+
+## Post-Merge Suggestions
+
+After displaying the summary, check if `.claude/settings.local.json` exists in the project. If it does, suggest:
+
+> You have local settings in `.claude/settings.local.json`. Run `/upgrade-settings` to share approved permissions with your team via `.claude/settings.json`.

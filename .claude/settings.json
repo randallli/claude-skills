@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash ~/.claude/skills:*)",
+      "Bash(bash:*)",
+      "Bash(gh pr:*)",
+      "Bash(git:*)",
+      "Bash(test:*)",
+      "mcp__plugin_github_github__create_pull_request"
+    ],
+    "ask": [
+      "Bash(gh pr merge:*)"
+    ]
+  }
+}

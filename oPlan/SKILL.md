@@ -15,7 +15,10 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 ## Steps
 
 1. **Fetch Issue Context:**
-   Use MCP GitHub tools (not `gh` CLI) to read the issue title, body, labels, and comments.
+   Use the `gh` CLI to read the issue title, body, labels, and comments:
+   ```bash
+   gh issue view <N> --comments
+   ```
 
 2. **Post Investigating Comment:**
    Use MCP GitHub tools to comment on the issue:
@@ -112,7 +115,7 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 ## Escalation Handling
 
 If this command is invoked because `/hExecute` escalated:
-- Read the escalation comment from the issue
+- Read the escalation comment from the issue using `gh issue view <N> --comments`
 - Revise the plan to address the blocker
 - Post an updated plan as a new comment
 - Remove the `tdd-escalation` label using MCP GitHub tools

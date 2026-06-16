@@ -15,7 +15,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 ## Steps
 
 1. **Fetch the Plan:**
-   Use MCP GitHub tools (not `gh` CLI) to read the issue comments. Find the most recent comment containing `## TDD Plan` and parse it to find the next unchecked task (`- [ ]`).
+   Use `gh issue view <N> --comments` to read the issue comments. Find the most recent comment containing `## TDD Plan` and parse it to find the next unchecked task (`- [ ]`).
 
 2. **Create/Switch to Task Branch:**
    Create a branch name from the issue number and task description:

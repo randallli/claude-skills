@@ -4,6 +4,8 @@ model: haiku
 description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at a time using Red-Green-Refactor discipline
 ---
 
+<!-- KEEP IN SYNC WITH sExecute/SKILL.md — the two files are identical except: name, model, description, and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
+
 # TDD Executor Instructions
 
 You are the execution phase of a two-phase TDD workflow. Your job is to implement one task at a time from the plan, following strict Red-Green-Refactor discipline.

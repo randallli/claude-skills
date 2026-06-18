@@ -34,7 +34,7 @@ Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent t
 
 5. **When each subagent finishes, update its issue's labels based on the outcome:**
 
-   - **Completed successfully** (all tasks done / PR opened, no blocker) — swap `agent-started` for `ready-for-review`:
+   - **Completed successfully** (the subagent reports all tasks done with no blocker or escalation — a PR may or may not have been opened; don't gate on the PR) — swap `agent-started` for `ready-for-review`:
      ```bash
      gh issue edit <N> --remove-label "agent-started" --add-label "ready-for-review"
      ```
@@ -47,6 +47,7 @@ Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent t
 - **`isolation: "worktree"` is required.** /hExecute edits files, runs tests, and commits on a per-issue branch. Without per-agent worktrees, parallel runs interleave edits on a single checkout and corrupt each other's work. The worktree is auto-cleaned if no changes were made; otherwise the path/branch is returned in the agent's result so you can push/PR from it.
 - Remove `agent-should-execute` *before* dispatching, not after — otherwise a second invocation of this skill (or a concurrent run) will re-execute the same issue. Adding `agent-started` at the same time gives a visible "in progress" signal while the subagent runs.
 - Only apply `ready-for-review` on a clean completion. A blocked/escalated issue keeps `agent-started` so it's clear it still needs attention rather than review.
+- A blocked/escalated issue leaves the auto-execute queue: `agent-should-execute` was already removed at dispatch, and the issue keeps `agent-started` (plus any `tdd-escalation` the subagent added), so a later sweep won't re-pick it. This is intended — escalations need `/oPlan` revision (and a re-tag with `agent-should-execute`) before they're eligible to run again.
 - `/hExecute` requires a TDD plan already on the issue (from `/oPlan`). If the issue isn't planned yet, the subagent will report that as a blocker — relay it.
 - Dispatch issues in parallel when there's more than one; each /hExecute run is independent (separate branches, separate worktrees).
 - If `gh issue edit` fails (e.g., label already removed), continue with dispatch anyway and note it in the report.

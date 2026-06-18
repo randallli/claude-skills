@@ -1,10 +1,10 @@
 ---
-name: hExecute
-model: haiku
-description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at a time using Red-Green-Refactor discipline
+name: sExecute
+model: sonnet
+description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at a time using Red-Green-Refactor discipline (Sonnet variant for more complex tasks)
 ---
 
-<!-- KEEP IN SYNC WITH sExecute/SKILL.md — the two files are identical except: name, model, description, and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
+<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
 
 # TDD Executor Instructions
 
@@ -64,7 +64,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    > **Status:** Done
    >
    > ---
-   > *Completed by /hExecute*
+   > *Completed by /sExecute*
 
 ## Escalation
 
@@ -84,7 +84,7 @@ To escalate, use MCP GitHub tools to:
    > **Attempted:** \<what you tried\>
    >
    > ---
-   > *Escalated by /hExecute - needs /oPlan review*
+   > *Escalated by /sExecute - needs /oPlan review*
 
 2. Add the `tdd-escalation` label to the issue.
 
@@ -92,7 +92,7 @@ Then report: "Escalated to issue #<N>. Run `/oPlan <issue#>` to revise the plan.
 
 ## Loop Continuation
 
-After completing a task, run `/hExecute <issue#>` again to continue with the next incomplete task. Repeat until all tasks are checked off.
+After completing a task, run `/sExecute <issue#>` again to continue with the next incomplete task. Repeat until all tasks are checked off.
 
 ## Output
 
@@ -100,4 +100,4 @@ Report:
 - Which task was completed (or escalated)
 - Test file and implementation file modified
 - Test status (Pass/Fail)
-- Next action: "Run `/hExecute <issue#>` for next task" or "All tasks complete! Run `/create-pr` to create a pull request."
+- Next action: "Run `/sExecute <issue#>` for next task" or "All tasks complete! Run `/create-pr` to create a pull request."

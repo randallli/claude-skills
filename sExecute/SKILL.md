@@ -2,9 +2,10 @@
 name: sExecute
 model: sonnet
 description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at a time using Red-Green-Refactor discipline (Sonnet variant for more complex tasks)
+context: fork
 ---
 
-<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
+<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, the `context: fork` frontmatter (sExecute only), and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
 
 # TDD Executor Instructions
 

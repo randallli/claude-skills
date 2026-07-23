@@ -1,5 +1,7 @@
 # BDD `.feature` Files in oPlan/hExecute — Implementation Plan
 
+> **STATUS: EXECUTED 2026-07-23, then superseded in part by review fixes.** Whole-branch review fixes `5a43ceb` and `3f49646` moved template meta-instructions out of the literal output blocks and corrected backtick nesting AFTER this plan was executed. Do not re-execute this plan verbatim — Task 3 Step 3's Setup meta bullet and Task 5 Step 3b's parenthetical Test line were deliberately removed from the final skill text; the skill files as merged are authoritative.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Teach the four workflow skills (oPlan/fPlan planners, hExecute/sExecute executors) to plan and execute user-facing behavior as Gherkin `.feature` files run by bdd_widget_test, while internal units keep plain Dart TDD.

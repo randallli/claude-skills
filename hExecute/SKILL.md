@@ -83,7 +83,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
 
 6. **Update Progress on GitHub:**
-   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a `**Feature:** `<feature_file>`` line directly under the **Test:** line:
+   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line:
    > ### Task Completed: \<task description\>
    >
    > **Test:** `<test_file>` - PASSING

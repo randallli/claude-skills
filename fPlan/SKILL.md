@@ -101,8 +101,8 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    - **Goal:** One-sentence summary
    - **Architecture:** Dependency diagram showing layer relationships and direction
    - **Tasks:** Numbered checklist with test scenarios (success, failure, edge cases)
-   - **Files:** Test file path and implementation file path for each task — **using actual project paths**
-   - **Assertions:** Expected behavior for each test
+   - **Files:** Test or Feature file path and implementation file path for each task — **using actual project paths**
+   - **Assertions:** Expected behavior for each test — plain assertions for TDD tasks, an inline Gherkin scenario for BDD tasks
 
 6. **Post Plan to GitHub:**
    Use MCP GitHub tools to post the plan as a comment:
@@ -122,7 +122,6 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 
    ### Tasks
    - [ ] **Task 1 (Setup):** Add bdd_widget_test tooling
-     - Only include when a BDD task exists and the repo lacks `bdd_widget_test`
      - Add `bdd_widget_test` + `build_runner` to dev_dependencies, smoke `.feature`, verify generation
 
    - [ ] **Task 2 (BDD):** <description>

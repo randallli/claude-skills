@@ -69,8 +69,9 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
 4. **Phase 2: Green (Minimal Implementation)**
    - Write the minimum code required to pass the test
-   - For BDD tasks: implement production code only — never edit the `.feature` file or weaken step definitions to force a pass
-   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
+   - For BDD tasks: implement production code only — never edit the `.feature`
+     file or weaken step definitions to force a pass
+   - Run tests: `./scripts/run_tests.sh <test_file>` (for BDD tasks, the generated test file; prints summary automatically)
    - **Verify the test PASSES.**
    - If it fails after 3 attempts, escalate (see below)
 
@@ -82,10 +83,10 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
 
 6. **Update Progress on GitHub:**
-   Use MCP GitHub tools to post a comment on the issue:
+   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a `**Feature:** `<feature_file>`` line directly under the **Test:** line:
    > ### Task Completed: \<task description\>
    >
-   > **Test:** `<test_file>` - PASSING (for BDD tasks also list **Feature:** `<feature_file>`)
+   > **Test:** `<test_file>` - PASSING
    > **Impl:** `<impl_file>`
    > **Status:** Done
    >

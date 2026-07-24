@@ -19,6 +19,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 1. **Fetch the Plan:**
    Use `gh issue view <N> --comments` to read the issue comments. Find the most recent comment containing `## TDD Plan` and parse it to find the next unchecked task (`- [ ]`).
 
+   Note the task's Type tag — `(Setup)`, `(BDD)`, or `(TDD)` — from the task title; it changes the Red phase below. Tasks without a tag are TDD.
+
 2. **Create/Switch to Task Branch:**
    Create a branch name from the issue number and task description:
    - Format: `issue-<N>/task-<M>-<short-description>`
@@ -35,16 +37,41 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    - Strip special characters
 
 3. **Phase 1: Red (Write Failing Test)**
-   - Write the test file for the next incomplete task
+
+   Branch on the task's Type tag:
+
+   **TDD task:**
+   - Write the test file for the task
    - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
    - **Verify the test FAILS.** If it passes:
      - Check if the feature already exists
      - Verify you're testing the correct behavior
      - Do NOT proceed until you have a legitimate failing test
 
+   **Setup task:** No Red-Green cycle. Perform the listed infrastructure steps
+   (dev dependencies, smoke `.feature`), run
+   `dart run build_runner build --delete-conflicting-outputs`, verify a test was
+   generated from the smoke feature and passes, then skip to step 6.
+
+   **BDD task:**
+   1. Create the `.feature` file at the planned `Feature:` path. Copy the
+      scenario from the plan **verbatim** — add only a `Feature: <name>` header
+      line. Do not rewrite, "improve", or re-derive the scenario.
+   2. Run `dart run build_runner build --delete-conflicting-outputs` to generate
+      the test and step stubs.
+   3. Implement any custom step definitions in `test/step/` — arrange/act only,
+      just enough for the scenario to run, not to pass.
+   4. Run tests: `./scripts/run_tests.sh <generated_test_file>` and **verify it
+      FAILS.**
+
+   After Red, the `.feature` file is frozen: if the scenario seems wrong or a
+   step cannot be expressed, escalate — do not edit the `.feature` file.
+
 4. **Phase 2: Green (Minimal Implementation)**
    - Write the minimum code required to pass the test
-   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
+   - For BDD tasks: implement production code only — never edit the `.feature`
+     file or weaken step definitions to force a pass
+   - Run tests: `./scripts/run_tests.sh <test_file>` (for BDD tasks, the generated test file; prints summary automatically)
    - **Verify the test PASSES.**
    - If it fails after 3 attempts, escalate (see below)
 
@@ -56,7 +83,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
      - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
 
 6. **Update Progress on GitHub:**
-   Use MCP GitHub tools to post a comment on the issue:
+   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line:
    > ### Task Completed: \<task description\>
    >
    > **Test:** `<test_file>` - PASSING
@@ -71,6 +98,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 If you encounter any of these situations, STOP and escalate:
 - Test doesn't fail in Red phase (feature may already exist)
 - Test doesn't pass after 3 implementation attempts
+- `dart run build_runner build` fails to generate from the `.feature` file after one fix attempt (malformed Gherkin in the plan)
+- A BDD scenario step cannot be expressed with built-in or planned custom steps
 - Architectural decision needed that wasn't covered in the plan
 - Unclear requirements or ambiguous task description
 

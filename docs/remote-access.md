@@ -8,8 +8,8 @@ covers only *reaching* the machine. Do the README setup first; nothing here depe
 nothing there depends on this.
 
 > **`mini1` is user-operated.** Run these commands yourself in a terminal. Agents don't execute
-> against that box — see the Dark Factory convention documented in `factory`'s
-> [`skills/README.md`](https://github.com/TripleLiDarkFactory/factory/blob/main/skills/README.md).
+> against that box — a Dark Factory convention, documented in `factory`'s `skills/README.md`
+> (landing with [TripleLiDarkFactory/factory#25](https://github.com/TripleLiDarkFactory/factory/pull/25)).
 > Everything below is written as copy-paste for a human.
 
 ## The shape of it
@@ -238,9 +238,10 @@ That repo's rule is "all GitHub Apps read this repo; only humans write to it."
 skill edit can't silently change autonomous agent behavior mid-run. A direct symlink would
 bypass that gate and create two sources of truth.
 
-Bootstrap instructions for the `factory` user live in that repo's
-[`skills/README.md`](https://github.com/TripleLiDarkFactory/factory/blob/main/skills/README.md),
-not here.
+Bootstrap instructions for the `factory` user live in that repo's `skills/README.md`, not here.
+That file lands with [TripleLiDarkFactory/factory#25](https://github.com/TripleLiDarkFactory/factory/pull/25);
+until it merges, `factory/skills/` on `main` still holds only placeholder stubs, so the factory
+agents have no real skill content yet.
 
 One macOS detail worth knowing: home directories are `drwxr-x---` with group `staff`, and these
 accounts share that group, so they **can** read each other's files. Cross-account symlinking is

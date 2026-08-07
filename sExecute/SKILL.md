@@ -20,6 +20,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 1. **Fetch the Plan:**
    Use `gh issue view <N> --comments` to read the issue comments. Find the most recent comment containing `## TDD Plan` and parse it to find the next unchecked task (`- [ ]`).
 
+   **If every task in the plan is already checked (`- [x]`), the work order is done — this is not this step's job to repeat.** Invoke `/create-pr` now and stop: do not start another Red-Green-Refactor cycle, and do not just report "run `/create-pr`" as text without calling it. `/create-pr` is staged into this same worktree specifically for this handoff.
+
    Note the task's Type tag — `(Setup)`, `(BDD)`, or `(TDD)` — from the task title; it changes the Red phase below. Tasks without a tag are TDD.
 
 2. **Create/Switch to Task Branch:**
@@ -130,4 +132,4 @@ Report:
 - Which task was completed (or escalated)
 - Test file and implementation file modified
 - Test status (Pass/Fail)
-- Next action: "Run `/sExecute <issue#>` for next task" or "All tasks complete! Run `/create-pr` to create a pull request."
+- Next action: "Run `/sExecute <issue#>` for next task" — or, if this run invoked `/create-pr` because the plan was already complete, report that PR's outcome instead (see `/create-pr`'s own Summary Format).

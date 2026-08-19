@@ -49,9 +49,20 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 
    c. **Check for reuse** — Does existing code already handle part of this feature?
 
-   d. **Audit BDD tooling** — Check whether `pubspec.yaml` lists `bdd_widget_test`
-      under `dev_dependencies`, whether `.feature` files already exist under `test/`,
-      and which step definitions already exist in `test/step/` for reuse.
+   d. **Audit BDD tooling** — First determine which BDD runner (if any) the target
+      repo needs, from its type:
+
+      | Target | Detect | Runner |
+      |---|---|---|
+      | Flutter app | `flutter` under `dependencies:` in `pubspec.yaml` | `bdd_widget_test` |
+      | Pure Dart package | `pubspec.yaml` present, no `flutter` dependency | `gherkin` 3.1.0 |
+      | Neither (no `pubspec.yaml`) | — | no BDD runner; classify every task TDD |
+
+      Then, for the runner selected above, check whether it is already listed under
+      `dev_dependencies`, whether `.feature` files already exist under `test/`, and
+      which step definitions already exist for reuse (`test/step/` for
+      `bdd_widget_test`; the step classes registered in the runner config for
+      `gherkin`).
 
    **You MUST match existing conventions. Never invent new folder structures, patterns, or Riverpod provider types you haven't seen in the codebase.** If the codebase uses `Provider` and `FutureProvider`, don't introduce `NotifierProvider` or `FutureProvider.family` unless you've confirmed they're already used.
 
@@ -74,14 +85,24 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 
    - **BDD** — the task's observable outcome is something a user sees or does
      (screens, widgets, navigation, user-visible state changes). Its Red-phase
-     artifact is a Gherkin `.feature` scenario run by `bdd_widget_test`.
+     artifact is a Gherkin `.feature` scenario run by the runner chosen in step 4d.
    - **TDD** — the outcome is internal (service methods, models, providers,
      parsing, computation). Its Red-phase artifact is a plain Dart test.
    - **Setup** — one-time infrastructure, no Red-Green cycle. If any task is BDD
-     and the target repo lacks `bdd_widget_test`, insert a Setup task as Task 1:
-     add `bdd_widget_test` and `build_runner` as dev dependencies, add a trivial
-     smoke `.feature` under `test/`, and verify `dart run build_runner build`
-     generates a test from it.
+     and the runner selected in step 4d is not yet in `dev_dependencies`, insert
+     a Setup task as Task 1, shaped by that runner:
+     - `bdd_widget_test` (Flutter): add `bdd_widget_test` and `build_runner` as
+       dev dependencies, add a trivial smoke `.feature` under `test/`, and
+       verify `dart run build_runner build` generates a test from it.
+     - `gherkin` (pure Dart): add `gherkin: ^3.1.0` as a dev dependency, add a
+       trivial smoke `.feature` under `test/`, add a runner entrypoint
+       `test/gherkin_runner.dart` whose `main()` calls
+       `GherkinRunner().execute(config)` with the feature path and step
+       definitions registered, and verify `dart run test/gherkin_runner.dart`
+       executes the smoke scenario. There is no `build_runner` step — `gherkin`
+       generates no code.
+     - Never add `bdd_widget_test` to a package without Flutter; it is a
+       Flutter widget-test generator and will not resolve.
 
    Do not avoid BDD classification to skip the Setup task: if the issue's
    acceptance criteria describe user-visible behavior, at least one task MUST
@@ -89,11 +110,15 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 
    **Gherkin conventions for BDD tasks:**
    - One `.feature` file per feature, under `test/`, snake_case file name
-     (bdd_widget_test generates the test file next to it).
+     (`bdd_widget_test` generates the test file next to it; `gherkin` loads
+     it via the feature path in the runner config).
    - Scenarios use concrete values ("31 minutes", not "N minutes").
-   - Prefer bdd_widget_test built-in steps (`the app is running`,
+   - For `bdd_widget_test`, prefer its built-in steps (`the app is running`,
      `I tap {...}`, `I see {...}`); plan custom steps only when built-ins
      cannot express the behavior, and name them in the task entry.
+   - Unlike `bdd_widget_test`, gherkin has no built-in steps — every step is
+     a custom class registered in the runner config, so name all of them in
+     the task entry.
    - The scenario text in the plan is authoritative: the executor copies it
      into the `.feature` file verbatim.
 
@@ -121,12 +146,14 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    **Conventions matched:** <list 2-3 existing files used as reference>
 
    ### Tasks
-   - [ ] **Task 1 (Setup):** Add bdd_widget_test tooling
-     - Add `bdd_widget_test` + `build_runner` to dev_dependencies, smoke `.feature`, verify generation
+   - [ ] **Task 1 (Setup):** Add <bdd_widget_test | gherkin> tooling
+     - Add the runner chosen in step 4d as a dev dependency, plus a smoke
+       `.feature`, and verify it runs (`build_runner` generation for
+       `bdd_widget_test`; `dart run test/gherkin_runner.dart` for `gherkin`)
 
    - [ ] **Task 2 (BDD):** <description>
      - Feature: `test/<feature_name>.feature` (actual project path)
-     - Steps: `test/step/` (generated; name any custom steps here)
+     - Steps: `test/step/` for `bdd_widget_test` (generated), or the gherkin runner config for `gherkin` (name any custom steps here)
      - Impl: `lib/path/file.dart` (actual project path)
      - SOLID: <tag: SRP/OCP/LSP/ISP/DIP>
      - Scenario:

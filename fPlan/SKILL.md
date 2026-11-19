@@ -133,14 +133,18 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    - **Assertions:** Expected behavior for each test — plain assertions for TDD tasks, an inline Gherkin scenario for BDD tasks
 
 6. **Post Plan to GitHub:**
-   Write the plan to a temp file, then post it as a comment with `gh`. Use `mktemp` — never a fixed `/tmp` path, since planners run concurrently and would clobber each other. `--body-file` (not `--body`) avoids shell-quoting problems with backticks and `$` in plan text:
+   Write the plan to a temp file, then post it as a comment with `gh`. Use `mktemp` — never a fixed `/tmp` path, since planners run concurrently and would clobber each other. `--body-file` (not `--body`) avoids shell-quoting problems with backticks and `$` in plan text. Run all of it as **one** Bash call — shell variables do not survive between calls — and keep the heredoc delimiter quoted (`'PLAN'`) so backticks and `$` stay literal:
 
    ```bash
    body="$(mktemp)"
-   # write the plan (format below) to "$body"
-   plan_url="$(gh issue comment <N> --body-file "$body")"
-   rm -f "$body"
+   cat > "$body" <<'PLAN'
+   ## TDD Plan
+   ...the full plan, in the format below...
+   PLAN
+   gh issue comment <N> --body-file "$body" && rm -f "$body"
    ```
+
+   `gh issue comment` prints the new comment's URL — copy it for the Output step. The temp file is only removed on success, so a failed post can be retried without regenerating the plan.
 
    Plan format:
 
@@ -194,10 +198,10 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    ```
 
 7. **Add Label:**
-   Create the label if the repo does not have it yet (`--force` is idempotent: it creates the label or leaves it as is), then add it:
+   Create the label if the repo does not have it yet (a no-op if it already exists), then add it:
 
    ```bash
-   gh label create tdd-plan-ready --force
+   gh label create tdd-plan-ready --color F9D0C4 --description "oPlan/fPlan posted a TDD plan; ready for hExecute" 2>/dev/null || true
    gh issue edit <N> --add-label tdd-plan-ready
    ```
 
@@ -207,10 +211,10 @@ If this command is invoked because `/hExecute` escalated:
 - Read the escalation comment from the issue using `gh issue view <N> --comments`
 - Revise the plan to address the blocker
 - Post an updated plan as a new comment (same command as Step 6)
-- Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation`
+- Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output
 
 ## Output
 
-After posting the plan comment, capture the comment URL that `gh issue comment` prints in Step 6 (`$plan_url`). Summarize the plan and end with:
+After posting the plan comment, use the comment URL that `gh issue comment` printed in Step 6. Summarize the plan and end with:
 > "TDD Plan posted to issue #<N>. Review the full plan: <comment_url>
 > Run `/hExecute <issue#>` to begin implementation."

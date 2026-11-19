@@ -5,7 +5,7 @@ description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at
 context: fork
 ---
 
-<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, the `context: fork` frontmatter (sExecute only), and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
+<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, the `context: fork` frontmatter (sExecute only), and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, or output in both files. -->
 
 # TDD Executor Instructions
 
@@ -80,7 +80,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
    **TDD task:**
    - Write the test file for the task
-   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
+   - Run the test command `CLAUDE.md` gives, on `<test_file>`. If `CLAUDE.md` gives no test command, escalate (see below).
    - **Verify the test FAILS.** If it passes:
      - Check if the feature already exists
      - Verify you're testing the correct behavior
@@ -99,8 +99,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
       the test and step stubs.
    3. Implement any custom step definitions in `test/step/` — arrange/act only,
       just enough for the scenario to run, not to pass.
-   4. Run tests: `./scripts/run_tests.sh <generated_test_file>` and **verify it
-      FAILS.**
+   4. Run the test command `CLAUDE.md` gives, on `<generated_test_file>`, and
+      **verify it FAILS.** If `CLAUDE.md` gives no test command, escalate (see below).
 
    After Red, the `.feature` file is frozen: if the scenario seems wrong or a
    step cannot be expressed, escalate — do not edit the `.feature` file.
@@ -109,16 +109,14 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    - Write the minimum code required to pass the test
    - For BDD tasks: implement production code only — never edit the `.feature`
      file or weaken step definitions to force a pass
-   - Run tests: `./scripts/run_tests.sh <test_file>` (for BDD tasks, the generated test file; prints summary automatically)
+   - Run the test command `CLAUDE.md` gives, on `<test_file>` (for BDD tasks, the generated test file). If `CLAUDE.md` gives no test command, escalate (see below).
    - **Verify the test PASSES.**
    - If it fails after 3 attempts, escalate (see below)
 
 5. **Phase 3: Refactor**
    - Review for code duplication or smells
    - Refactor if needed, ensuring tests still pass
-   - Run analyzer (two separate Bash calls - do NOT chain with &&):
-     - **Call 1:** `./scripts/run_analyze.sh`
-     - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
+   - Run the analyze command `CLAUDE.md` gives and fix every issue it reports. If `CLAUDE.md` gives no analyze command, escalate (see below).
 
 6. **Commit and Push:**
    After Phase 3 passes, commit and push immediately — this is what makes the task's work
@@ -178,6 +176,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 ## Escalation
 
 If you encounter any of these situations, STOP and escalate:
+- `CLAUDE.md` gives no test command (Red/Green) or no analyze command (Refactor). `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count.
 - Test doesn't fail in Red phase (feature may already exist)
 - Test doesn't pass after 3 implementation attempts
 - `git push` fails after Phase 3 (Step 6)

@@ -17,14 +17,16 @@ Two kinds of check live here.
 
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
-(GREEN), reading every rep by hand. Fixtures live under `tmp/cmd-fixtures/`
-(ignored by git) and are described in
-`docs/superpowers/plans/2026-11-19-claude-md-commands.md`.
+(GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
+(three target-repo variants, the fixture issue, and the harness rules); the
+captured runs are summarized in
+`docs/superpowers/plans/2026-11-19-claude-md-commands.md`. Keep prompts and
+captures under `tmp/` (git-ignored).
 
 Recipe, one fresh dispatch per rep:
 
 1. Build the prompt:
-   `bash tests/build_prompt.sh <skill-dir> tmp/cmd-fixtures/<fixture> <E|P|F> > tmp/cmd-fixtures/prompts/<scenario>.md`
+   `bash tests/build_prompt.sh <skill-dir> tests/fixtures/<fixture> <E|P|F> > tmp/prompts/<scenario>.md`
    The prompt is: full `SKILL.md`, the fixture's `CLAUDE.md` as project
    instructions (as Claude Code loads it), the fixture issue (executor
    scenarios only), the harness rules with only that family's stated

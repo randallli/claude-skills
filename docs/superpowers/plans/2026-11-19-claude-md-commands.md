@@ -17,13 +17,14 @@ missing), and `fix-ci` reports and stops (or skips the one missing check).
 
 ## Method
 
-Fixture target repo (`tmp/cmd-fixtures/`, git-ignored) in three variants:
+Fixture target repo (`tests/fixtures/`, committed) in three variants:
 `target-with-commands` (CLAUDE.md `## Commands` copied from tripleli/VisualTimers#126's
 shape: Install deps, Test, Analyze, Format, Rive sources), `target-without-commands`
 (no `## Commands` section), `target-test-only` (Test but no Analyze). All three
 contain `.github/workflows/ci.yml` running `flutter test --concurrency=4 --coverage`
 and `flutter analyze --no-fatal-infos` as the tempting alternative source, and no
-`scripts/` directory.
+`scripts/` directory. (Nested workflow files are inert; GitHub only runs
+`.github/workflows/` at the repo root.)
 
 Each scenario = one fresh `general-purpose` subagent at the skill's runtime model
 (`haiku` for hExecute/create-pr/fix-ci, `sonnet` for sExecute) given: the full
@@ -109,4 +110,31 @@ fix-ci (F1/F2):
 
 - The F-family stated outcomes (`unused_local_variable at lib/counter.dart:4`, a failing increment test) do not match the fixture files on disk; most fix-ci reps flagged the mismatch and proceeded on the stated outcome. It did not affect command choice, and was kept identical between RED and GREEN for comparability. Tighten if fix-ci is re-tested for anything other than command sourcing.
 - The fixture's CLAUDE.md line "CI (`.github/workflows/`) is the source of truth; these mirror it" (copied from VisualTimers#126) is what led 4 baseline reps to `ci.yml`. The GREEN wording held against it; keep the line in the fixture.
-- `tmp/cmd-fixtures/*.md` captures (baseline-*.md, green-*.md) are git-ignored; this file is the durable record.
+- The fixtures are committed under `tests/fixtures/`; the per-rep captures (baseline-*.md, green-*.md, prompts) lived under `tmp/` and are git-ignored, so this file is the durable record of them.
+
+## Review fixes (PR #52, 2026-11-19)
+
+A high-effort code review on the PR produced ten findings; all were verified and fixed:
+
+1. **Escalating in Phase 3 discarded Red/Green work.** Both executors now read the test *and* analyze command in step 1 (before `git checkout -B`) and escalate there if either is missing; Red/Green/Refactor/Setup refer to "the test/analyze command from step 1". This replaces plan v4's per-phase rule for executors. The README's per-command rule was updated to match.
+2. **"fix every issue it reports"** was an unstated new obligation on pre-existing lint. Now: "fix the issues it reports in the files this task changed".
+3. **fix-ci's optional integration-test command had no bullet and contradicted the README.** Step 0 now also reads an optional `**Integration tests:**` bullet; the README documents it as optional and `fix-ci`-only.
+4. **Fixtures were git-ignored**, so the RED/GREEN recipe was not reproducible from a clone. Fixtures moved to `tests/fixtures/`; `tests/build_prompt.sh` resolves `issue-998.md` and `harness-rules.md` relative to the fixture's parent instead of hard-coding `tmp/`.
+5. **`check_stale_refs.sh` read a grep error as a pass.** Exit codes are now dispatched: 0 → fail (matches), 1 → pass, ≥2 → fail loudly (verified by renaming `sExecute/`).
+6. **`check_sync.sh` normalized too widely.** Frontmatter deletion is restricted to lines 1-6; `diff` exit codes are dispatched the same way.
+7. README cited VisualTimers#125 (the issue) where the record cited #126 (the PR). Both now say #126.
+8. This repo's `CLAUDE.md` test command has no single-file form; it says so now, and the README notes it.
+9. The Setup task's "verify a test was generated … and passes" named no command; it now runs the test command from step 1.
+10. `hExecute`'s KEEP IN SYNC comment omitted `context: fork`; it now matches `sExecute`'s.
+
+Re-verification after the edits (fresh haiku reps, same fixtures, prompts built from `tests/fixtures/`):
+
+| Scenario | Result |
+|---|---|
+| E1 hExecute with-commands | **5/5** — `flutter test <file>` Red/Green, `flutter analyze --no-fatal-infos`, no scripts, reached Refactor |
+| E2 hExecute without-commands | **5/5** — escalated in step 1 before writing anything; Blocker names the missing CLAUDE.md commands |
+| E3 hExecute test-only | **5/5** — escalated in step 1 naming the missing analyze command; no Red/Green work done or discarded |
+| E1s sExecute (sonnet smoke) | **1/1** |
+| F1 fix-ci with-commands (step 0 wording changed) | **5/5** — step 0 read Test, Analyze and the absent Integration-tests bullet; only CLAUDE.md commands ran; integration skipped with a note |
+
+`create-pr` was not re-run: its skill text did not change in the review pass.

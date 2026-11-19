@@ -102,8 +102,9 @@ Claude Code loads skills from `~/.claude/skills/` automatically. The skill's dir
 `hExecute`, `sExecute`, `create-pr` and `fix-ci` take their test and analyze
 commands from the target repo's `CLAUDE.md`, from its `## Commands` section, and
 from nowhere else: not a CI workflow, not a README, not a `scripts/` directory.
-The section looks like this (tripleli/VisualTimers#125's shape); bullets other
-than **Test** and **Analyze** are ignored by these skills:
+The section looks like this (the shape tripleli/VisualTimers#126 landed). **Test**
+and **Analyze** are required; **Integration tests** is optional and only `fix-ci`
+uses it; every other bullet is ignored by these skills:
 
 ```markdown
 ## Commands
@@ -112,21 +113,22 @@ than **Test** and **Analyze** are ignored by these skills:
 - **Test:** `flutter test` (single file: `flutter test <path>`)
 - **Analyze:** `flutter analyze --no-fatal-infos` (CI's exact flags; must exit 0)
 - **Format:** `dart format <changed files>` — format only the files you touch
+- **Integration tests:** `bash tool/run_integration_tests.sh` (optional)
 ```
 
-When a command is missing, each skill needs it for the step it is in:
+When a command is missing:
 
-- `hExecute` / `sExecute` escalate (the `tdd-escalation` comment) in the phase
-  whose command is missing: Red/Green need the test command, Refactor needs the
-  analyze command.
+- `hExecute` / `sExecute` read both in step 1, before any code is written, and
+  escalate (the `tdd-escalation` comment) if either is missing.
 - `create-pr` runs whichever command is given and marks the other
   `skipped: no <test|analyze> command in CLAUDE.md` in its PR Summary. Only when
   both are missing does it skip local validation entirely; the PR still stands.
 - `fix-ci` reads both in its step 0. If both are missing it reports and stops;
-  if one is missing it says which and skips that check throughout.
+  if one is missing it says which and skips that check throughout. Without an
+  **Integration tests** bullet it skips integration tests and says so.
 
-This repo's own `CLAUDE.md` follows the same shape, and `tests/README.md`
-describes how skill behavior is verified.
+This repo's own `CLAUDE.md` follows the same shape (its test has no single-file
+form), and `tests/README.md` describes how skill behavior is verified.
 
 ## Adding a skill
 

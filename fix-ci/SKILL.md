@@ -43,7 +43,7 @@ Do this:
 ## Steps
 
 0. **Read the commands**
-   Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives neither command, report "fix-ci needs a test and an analyze command in CLAUDE.md ## Commands" and stop. If it gives only one, say which is missing and skip that check in every step below. Every "test command" and "analyze command" below means the command read here.
+   Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives neither command, report "fix-ci needs a test and an analyze command in CLAUDE.md ## Commands" and stop. If it gives only one, say which is missing and skip that check in every step below. Also read the optional integration-test command: the `**Integration tests:**` bullet of the same section, if there is one; if there is none, integration tests are skipped in every step below and the summary says so. Every "test command", "analyze command" and "integration-test command" below means the command read here.
 
 1. **Check CI Status**
    - Get latest CI run: `gh run list --limit 1 --json conclusion,status,workflowName,databaseId`
@@ -56,7 +56,7 @@ Do this:
    - Skip CI status check and proceed directly to local diagnosis
    - Launch all checks in background (`run_in_background: true` — do NOT chain with &&):
      - Unit tests: the test command `CLAUDE.md` gives
-     - Integration tests: the integration-test command, if `CLAUDE.md` gives one (otherwise skip integration tests and say so)
+     - Integration tests: the integration-test command from step 0, if there is one (otherwise skip integration tests and say so)
      - Analyzer: the analyze command `CLAUDE.md` gives
    - When all complete, read the analyzer output
    - Continue with normal fix workflow based on local results
@@ -65,7 +65,7 @@ Do this:
    - **Launch in background:**
      - the test command `CLAUDE.md` gives
      - the analyze command `CLAUDE.md` gives
-     - the integration-test command, if `CLAUDE.md` gives one and integration tests failed (otherwise skip integration tests and say so)
+     - the integration-test command from step 0, if there is one and integration tests failed (otherwise skip integration tests and say so)
    - **When results arrive:**
      - Read the analyzer output and count its issues
      - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed
@@ -154,7 +154,7 @@ Do this:
 6. **Run Integration Tests** (automatically after CI fixes)
 
    After applying fixes and verifying CI passes, automatically run the
-   integration-test command, if `CLAUDE.md` gives one (otherwise skip
+   integration-test command from step 0, if there is one (otherwise skip
    integration tests and say so).
 
    **What this checks:**
@@ -284,7 +284,7 @@ Do this:
 - ✅ Build successful
 
 ### Integration Tests
-Running: the integration-test command `CLAUDE.md` gives (or: skipped, none given)
+Running: the integration-test command from step 0 (or: skipped, none given)
 - ✅ 6/6 test files passing (some tests skipped: device rotation)
 - ⏱️ Duration: 45s
 - 🎯 Coverage: Full user workflows validated
@@ -349,7 +349,7 @@ Scanned lib/ and test/ directories:
 | Test timeout | Increase timeout or optimize slow tests |
 | Golden file mismatch | Regenerate with `--update-goldens` |
 | Dependency conflicts | Update `pubspec.yaml` and run `pub get` |
-| Integration test fails | Use the integration-test command `CLAUDE.md` gives (it should run each file individually on macOS) |
+| Integration test fails | Use the integration-test command from step 0 (it should run each file individually on macOS) |
 | Build cache issues | Run `flutter clean && flutter pub get` |
 | Large files | Extract mixins, split into smaller focused files |
 
@@ -390,7 +390,7 @@ The `/fix-ci` command automatically executes all these steps:
    - Confirm all checks successful
    ↓
 9. Run Integration Tests Automatically
-   - Execute the integration-test command `CLAUDE.md` gives, if any
+   - Execute the integration-test command from step 0, if any
    - Report pass/fail/skip status
    ↓
 10. Check File Sizes Automatically

@@ -88,9 +88,7 @@ Each skill lives in its own directory with a `SKILL.md` file:
 ```
 skills/
 ├── create-pr/
-│   ├── SKILL.md
-│   └── scripts/
-│       └── run_tests.sh
+│   └── SKILL.md
 ├── merge-pr/
 │   └── SKILL.md
 └── your-skill/
@@ -98,6 +96,37 @@ skills/
 ```
 
 Claude Code loads skills from `~/.claude/skills/` automatically. The skill's directory name becomes its invocation name (e.g., `/merge-pr`).
+
+## Target repo requirements
+
+`hExecute`, `sExecute`, `create-pr` and `fix-ci` take their test and analyze
+commands from the target repo's `CLAUDE.md`, from its `## Commands` section, and
+from nowhere else: not a CI workflow, not a README, not a `scripts/` directory.
+The section looks like this (tripleli/VisualTimers#125's shape); bullets other
+than **Test** and **Analyze** are ignored by these skills:
+
+```markdown
+## Commands
+
+- **Install deps:** `flutter pub get`
+- **Test:** `flutter test` (single file: `flutter test <path>`)
+- **Analyze:** `flutter analyze --no-fatal-infos` (CI's exact flags; must exit 0)
+- **Format:** `dart format <changed files>` — format only the files you touch
+```
+
+When a command is missing, each skill needs it for the step it is in:
+
+- `hExecute` / `sExecute` escalate (the `tdd-escalation` comment) in the phase
+  whose command is missing: Red/Green need the test command, Refactor needs the
+  analyze command.
+- `create-pr` runs whichever command is given and marks the other
+  `skipped: no <test|analyze> command in CLAUDE.md` in its PR Summary. Only when
+  both are missing does it skip local validation entirely; the PR still stands.
+- `fix-ci` reads both in its step 0. If both are missing it reports and stops;
+  if one is missing it says which and skips that check throughout.
+
+This repo's own `CLAUDE.md` follows the same shape, and `tests/README.md`
+describes how skill behavior is verified.
 
 ## Adding a skill
 
@@ -118,4 +147,5 @@ git commit -m "Add my-skill"
 | `merge-pr` | Squash-merge the most recent PR and create a new branch for continued development |
 | `oPlan` | Lead Architect (Opus) — analyze a GitHub issue and post a TDD plan as a GitHub comment |
 | `hExecute` | TDD Executor (Haiku) — implement one task at a time from an oPlan TDD plan using Red-Green-Refactor |
+| `sExecute` | TDD Executor (Sonnet) — same as `hExecute`, for more complex tasks |
 | `fix-ci` | Diagnose and fix CI failures incrementally — handles Flutter test failures, analyzer warnings, and build issues |

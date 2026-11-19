@@ -23,8 +23,11 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    ```
 
 2. **Post Investigating Comment:**
-   Use MCP GitHub tools to comment on the issue:
-   > "🔍 `/oPlan` is investigating this issue and designing a TDD plan. Please hold off for ~10 minutes until the plan is posted."
+   Use `gh` to comment on the issue:
+
+   ```bash
+   gh issue comment <N> --body "🔍 \`/oPlan\` is investigating this issue and designing a TDD plan. Please hold off for ~10 minutes until the plan is posted."
+   ```
 
 3. **Checkout New Branch:**
    Create and checkout a new branch from `main` for this work:
@@ -130,7 +133,16 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    - **Assertions:** Expected behavior for each test — plain assertions for TDD tasks, an inline Gherkin scenario for BDD tasks
 
 6. **Post Plan to GitHub:**
-   Use MCP GitHub tools to post the plan as a comment:
+   Write the plan to a temp file, then post it as a comment with `gh`. Use `mktemp` — never a fixed `/tmp` path, since planners run concurrently and would clobber each other. `--body-file` (not `--body`) avoids shell-quoting problems with backticks and `$` in plan text:
+
+   ```bash
+   body="$(mktemp)"
+   # write the plan (format below) to "$body"
+   plan_url="$(gh issue comment <N> --body-file "$body")"
+   rm -f "$body"
+   ```
+
+   Plan format:
 
    ```
    ## TDD Plan
@@ -182,18 +194,23 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    ```
 
 7. **Add Label:**
-   Use MCP GitHub tools to add the `tdd-plan-ready` label.
+   Create the label if the repo does not have it yet (`--force` is idempotent: it creates the label or leaves it as is), then add it:
+
+   ```bash
+   gh label create tdd-plan-ready --force
+   gh issue edit <N> --add-label tdd-plan-ready
+   ```
 
 ## Escalation Handling
 
 If this command is invoked because `/hExecute` escalated:
 - Read the escalation comment from the issue using `gh issue view <N> --comments`
 - Revise the plan to address the blocker
-- Post an updated plan as a new comment
-- Remove the `tdd-escalation` label using MCP GitHub tools
+- Post an updated plan as a new comment (same command as Step 6)
+- Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation`
 
 ## Output
 
-After posting the plan comment, capture the comment URL from the MCP tool response. Summarize the plan and end with:
+After posting the plan comment, capture the comment URL that `gh issue comment` prints in Step 6 (`$plan_url`). Summarize the plan and end with:
 > "TDD Plan posted to issue #<N>. Review the full plan: <comment_url>
 > Run `/hExecute <issue#>` to begin implementation."

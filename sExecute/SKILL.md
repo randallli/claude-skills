@@ -138,7 +138,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    exactly the invisible state this issue is about.
 
 7. **Update Progress on GitHub:**
-   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line. **Branch:** and **PR:** make the work locatable from the issue alone — always include both, even though nothing else in this step reads them back. Use the branch re-derived in Step 2. A PR does not exist yet at this point in the loop (`/create-pr` only runs once every task is checked off), so **PR:** is always the literal `none yet` here — write the line rather than omitting it, so its absence is visible rather than ambiguous:
+   Use `gh` to post a comment on the issue (snippet below). For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line. **Branch:** and **PR:** make the work locatable from the issue alone — always include both, even though nothing else in this step reads them back. Use the branch re-derived in Step 2. A PR does not exist yet at this point in the loop (`/create-pr` only runs once every task is checked off), so **PR:** is always the literal `none yet` here — write the line rather than omitting it, so its absence is visible rather than ambiguous:
    > ### Task Completed: \<task description\>
    >
    > **Test:** `<test_file>` - PASSING
@@ -149,6 +149,18 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    >
    > ---
    > *Completed by /sExecute*
+
+   Run it as **one** Bash call (shell variables do not survive between calls); the quoted
+   `'COMMENT'` delimiter keeps backticks and `$` literal:
+
+   ```bash
+   body="$(mktemp)"   # never a fixed /tmp path: executors run concurrently and would clobber
+   cat > "$body" <<'COMMENT'
+   ### Task Completed: <task description>
+   ...the rest of the comment above...
+   COMMENT
+   gh issue comment <N> --body-file "$body" && rm -f "$body"
+   ```
 
 8. **Check Off the Task in the Plan:**
    Flip this task's checkbox in the plan comment from `- [ ]` to `- [x]` — this is what lets a
@@ -161,8 +173,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    # edit "$body": flip only this task's `- [ ]` to `- [x]` by matching its title text,
    # leave every other line byte-identical
    gh api --method PATCH repos/{owner}/{repo}/issues/comments/<plan_comment_id> \
-     -F body=@"$body"
-   rm -f "$body"
+     -F body=@"$body" && rm -f "$body"
    ```
 
    Use `-F` (capital), not `-f` — `gh api`'s lowercase `-f`/`--raw-field` never dereferences
@@ -187,9 +198,9 @@ If you encounter any of these situations, STOP and escalate:
 - Architectural decision needed that wasn't covered in the plan
 - Unclear requirements or ambiguous task description
 
-To escalate, use MCP GitHub tools to:
+To escalate:
 
-1. Post a comment on the issue:
+1. Post a comment on the issue (`mktemp` file + `gh issue comment <N> --body-file "$body"`, as in Step 7):
    > ### Escalation Required
    >
    > **Task:** \<task description\>
@@ -199,7 +210,14 @@ To escalate, use MCP GitHub tools to:
    > ---
    > *Escalated by /sExecute - needs /oPlan review*
 
-2. Add the `tdd-escalation` label to the issue.
+2. Add the `tdd-escalation` label to the issue. Create it first if the repo does not have it yet (a no-op if it already exists):
+
+   ```bash
+   gh label create tdd-escalation --color F9D0C4 --description "hExecute/sExecute hit a blocker; needs /oPlan review" 2>/dev/null || true
+   gh issue edit <N> --add-label tdd-escalation
+   ```
+
+If an escalation `gh` call itself fails, still report the escalation text to the user — that is the only way out left, so do not loop on it.
 
 Then report: "Escalated to issue #<N>. Run `/oPlan <issue#>` to revise the plan."
 

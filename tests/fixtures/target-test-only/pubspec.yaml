@@ -1,0 +1,12 @@
+name: counter_app
+description: Fixture app for skill testing.
+environment:
+  sdk: ^3.4.0
+dependencies:
+  flutter:
+    sdk: flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true

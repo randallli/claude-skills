@@ -5,7 +5,7 @@ description: Execute TDD tasks from an oPlan plan on a GitHub issue, one task at
 context: fork
 ---
 
-<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, the `context: fork` frontmatter (sExecute only), and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, scripts, or output in both files. -->
+<!-- KEEP IN SYNC WITH hExecute/SKILL.md — the two files are identical except: name, model, description, the `context: fork` frontmatter (sExecute only), and the /hExecute vs /sExecute self-references. Mirror any change to the steps, escalation, or output in both files. -->
 
 # TDD Executor Instructions
 
@@ -46,6 +46,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
    Note the task's Type tag — `(Setup)`, `(BDD)`, or `(TDD)` — from the task title; it changes the Red phase below. Tasks without a tag are TDD.
 
+   **Read the commands.** Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives no test command or no analyze command, escalate now (see below), before writing anything: a missing command found here costs nothing, found in Phase 3 it discards the Red and Green work.
+
 2. **Stay on the Worktree's Branch:**
    One branch per work order, not one per task — do not mint a new branch for
    each task. Re-derive the current branch at the start of every task; nothing
@@ -80,7 +82,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
    **TDD task:**
    - Write the test file for the task
-   - Run tests: `./scripts/run_tests.sh <test_file>` (prints summary automatically)
+   - Run the test command from step 1 on `<test_file>`
    - **Verify the test FAILS.** If it passes:
      - Check if the feature already exists
      - Verify you're testing the correct behavior
@@ -88,8 +90,9 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 
    **Setup task:** No Red-Green cycle. Perform the listed infrastructure steps
    (dev dependencies, smoke `.feature`), run
-   `dart run build_runner build --delete-conflicting-outputs`, verify a test was
-   generated from the smoke feature and passes, then skip to step 6.
+   `dart run build_runner build --delete-conflicting-outputs`, run the test
+   command from step 1 on the test generated from the smoke feature and verify
+   it passes, then skip to step 6.
 
    **BDD task:**
    1. Create the `.feature` file at the planned `Feature:` path. Copy the
@@ -99,8 +102,8 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
       the test and step stubs.
    3. Implement any custom step definitions in `test/step/` — arrange/act only,
       just enough for the scenario to run, not to pass.
-   4. Run tests: `./scripts/run_tests.sh <generated_test_file>` and **verify it
-      FAILS.**
+   4. Run the test command from step 1 on `<generated_test_file>` and **verify
+      it FAILS.**
 
    After Red, the `.feature` file is frozen: if the scenario seems wrong or a
    step cannot be expressed, escalate — do not edit the `.feature` file.
@@ -109,16 +112,14 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    - Write the minimum code required to pass the test
    - For BDD tasks: implement production code only — never edit the `.feature`
      file or weaken step definitions to force a pass
-   - Run tests: `./scripts/run_tests.sh <test_file>` (for BDD tasks, the generated test file; prints summary automatically)
+   - Run the test command from step 1 on `<test_file>` (for BDD tasks, the generated test file)
    - **Verify the test PASSES.**
    - If it fails after 3 attempts, escalate (see below)
 
 5. **Phase 3: Refactor**
    - Review for code duplication or smells
    - Refactor if needed, ensuring tests still pass
-   - Run analyzer (two separate Bash calls - do NOT chain with &&):
-     - **Call 1:** `./scripts/run_analyze.sh`
-     - **Call 2:** `grep 'issues found' ./tmp/analyze_results.txt`
+   - Run the analyze command from step 1 and fix the issues it reports in the files this task changed
 
 6. **Commit and Push:**
    After Phase 3 passes, commit and push immediately — this is what makes the task's work
@@ -189,6 +190,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
 ## Escalation
 
 If you encounter any of these situations, STOP and escalate:
+- `CLAUDE.md` gives no test command or no analyze command (step 1). `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count.
 - Test doesn't fail in Red phase (feature may already exist)
 - Test doesn't pass after 3 implementation attempts
 - `git push` fails after Phase 3 (Step 6)

@@ -26,9 +26,10 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
      this repo), report it and continue — the scheduler's own reconcile pass is
      the backstop for this transition.
 
-2. **Launch tests and linter in the background** (use `run_in_background: true` on each Bash call — do NOT chain with `&&`):
-   - **Tests:** If the project has `./scripts/run_tests.sh`, use it. Otherwise, run: `bash ~/.claude/skills/create-pr/scripts/run_tests.sh`
-   - **Linter:** Use the project's lint command
+2. **Launch tests and linter in the background** (use `run_in_background: true` on each Bash call — do NOT chain with `&&`). Both commands come from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count.
+   - **Tests:** Run the test command `CLAUDE.md` gives, for all tests. If `CLAUDE.md` gives no test command, run no tests and fill the Tests slot below with `skipped: no test command in CLAUDE.md`.
+   - **Linter:** Run the analyze command `CLAUDE.md` gives. If `CLAUDE.md` gives no analyze command, run no linter and fill the Linter slot below with `skipped: no analyze command in CLAUDE.md`.
+   - If `CLAUDE.md` gives neither command, skip steps 2–3 entirely and report the PR URL with the Summary Format below (the PR from step 1 stands).
    - **Report the PR URL to the user immediately** — don't wait for results
 
 3. **When background tasks complete**, analyze results:
@@ -53,8 +54,8 @@ End with:
 ```
 ## PR Summary
 - **PR:** <URL>
-- **Tests:** X passing (+Y new)
-- **Linter:** clean / N issues
+- **Tests:** X passing (+Y new) — or `skipped: no test command in CLAUDE.md`
+- **Linter:** clean / N issues — or `skipped: no analyze command in CLAUDE.md`
 - **Fixes pushed:** none / N commits
 ```
 

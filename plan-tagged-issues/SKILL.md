@@ -26,7 +26,7 @@ Find open GitHub issues labeled `agent-should-plan` and dispatch a subagent to r
    b. Dispatch a subagent (subagent_type: `claude`, **`isolation: "worktree"`**) with a prompt like:
    > Run the /oPlan skill on GitHub issue #<N> in <owner/repo> (title: "<title>"). Invoke the oPlan skill via the Skill tool with arg "<N>". Follow the skill's instructions exactly. Report back a brief summary (under 150 words) of what the plan covers and where it was posted.
 
-4. **Report results:** One bullet per issue with the issue number, title, plan comment link.
+4. **Report results:** One bullet per issue with the issue number, title, and plan comment link.
 
 ## Notes
 

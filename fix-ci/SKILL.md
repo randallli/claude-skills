@@ -42,6 +42,9 @@ Do this:
 
 ## Steps
 
+0. **Read the commands**
+   Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives neither command, report "fix-ci needs a test and an analyze command in CLAUDE.md ## Commands" and stop. If it gives only one, say which is missing and skip that check in every step below. Every "test command" and "analyze command" below means the command read here.
+
 1. **Check CI Status**
    - Get latest CI run: `gh run list --limit 1 --json conclusion,status,workflowName,databaseId`
    - If on a branch with open PR: `gh pr view --json number,statusCheckRollup`
@@ -52,19 +55,19 @@ Do this:
    - Report: "GitHub Actions spending limit reached - running checks locally"
    - Skip CI status check and proceed directly to local diagnosis
    - Launch all checks in background (`run_in_background: true` — do NOT chain with &&):
-     - Unit tests: `./scripts/run_tests.sh` (prints summary automatically)
-     - Integration tests: `./scripts/run_integration_tests.sh` (runs each test file individually)
-     - Analyzer: `./scripts/run_analyze.sh`
-   - When all complete, parse analyzer: `grep 'issues found' ./tmp/analyze_results.txt`
+     - Unit tests: the test command `CLAUDE.md` gives
+     - Integration tests: the integration-test command, if `CLAUDE.md` gives one (otherwise skip integration tests and say so)
+     - Analyzer: the analyze command `CLAUDE.md` gives
+   - When all complete, read the analyzer output
    - Continue with normal fix workflow based on local results
 
 2. **Diagnose Issues** (launch checks in background with `run_in_background: true` — do NOT chain with &&):
    - **Launch in background:**
-     - `./scripts/run_tests.sh` (prints summary automatically)
-     - `./scripts/run_analyze.sh`
-     - `./scripts/run_integration_tests.sh` (if integration tests failed; may require specific setup)
+     - the test command `CLAUDE.md` gives
+     - the analyze command `CLAUDE.md` gives
+     - the integration-test command, if `CLAUDE.md` gives one and integration tests failed (otherwise skip integration tests and say so)
    - **When results arrive:**
-     - `grep 'issues found' ./tmp/analyze_results.txt` (parse analyzer output)
+     - Read the analyzer output and count its issues
      - **Preview auto-fixes**: Run `dart fix --dry-run` to see how many issues can be auto-fixed
    - **Build failures**: Check for dependency or configuration issues
    - **Count total issues** to determine if splitting is needed (many may be auto-fixable)
@@ -82,24 +85,24 @@ Do this:
      - `avoid_single_cascade_in_expression_statements`
      - `unused_local_variable` (in some cases)
      - Many other lint rules from very_good_analysis
-   - After running, re-check with the scripts above to see remaining issues
+   - After running, re-check with the commands above to see remaining issues
 
    **Step 3b: Manual fixes for remaining analyzer issues**
    - `dart fix` does NOT handle these — fix manually:
      - `lines_longer_than_80_chars`: Break long lines appropriately
      - Complex refactoring-style fixes
      - Context-dependent fixes that require understanding intent
-   - Verify with the scripts above
+   - Verify with the commands above
 
    **Step 3c: Test failures**
    - Run tests to identify failing cases:
-     - `./scripts/run_tests.sh` (prints summary automatically)
+     - the test command `CLAUDE.md` gives
    - Check for:
      - Outdated golden files (regenerate with `flutter test --update-goldens`)
      - Race conditions in async tests
      - Missing mocks or test data
      - State cleanup issues between tests
-   - Fix and verify with same the scripts above
+   - Fix and verify with the same commands above
 
    **Step 3d: Build failures**
    - Check `pubspec.yaml` for dependency issues
@@ -108,10 +111,10 @@ Do this:
 
 4. **Verify Fixes** (launch in background with `run_in_background: true`):
    - **Launch in background:**
-     - `./scripts/run_tests.sh` (prints summary automatically)
-     - `./scripts/run_analyze.sh`
+     - the test command `CLAUDE.md` gives
+     - the analyze command `CLAUDE.md` gives
    - **When both complete:**
-     - `grep 'issues found' ./tmp/analyze_results.txt`
+     - Read the analyzer output and count its issues
    - Create summary of changes made
    - **Check if more fixes remain** - if yes, plan next incremental fix
 
@@ -150,10 +153,9 @@ Do this:
 
 6. **Run Integration Tests** (automatically after CI fixes)
 
-   After applying fixes and verifying CI passes, automatically run:
-   ```bash
-   ./scripts/run_integration_tests.sh
-   ```
+   After applying fixes and verifying CI passes, automatically run the
+   integration-test command, if `CLAUDE.md` gives one (otherwise skip
+   integration tests and say so).
 
    **What this checks:**
    - Full user workflows end-to-end
@@ -167,8 +169,7 @@ Do this:
    - May skip if platform requirements not met (report this)
 
    **Integration test considerations:**
-   - Uses the provided script which runs each test file individually (required for macOS)
-   - Running `flutter test integration_test/` directly causes app restart failures between files on macOS
+   - Running `flutter test integration_test/` directly causes app restart failures between files on macOS; the project's integration-test command should run each file individually
    - Platform-specific tests can be skipped with note
    - Focus on tests that can run in current environment
 
@@ -283,7 +284,7 @@ Do this:
 - ✅ Build successful
 
 ### Integration Tests
-Running: `./scripts/run_integration_tests.sh`
+Running: the integration-test command `CLAUDE.md` gives (or: skipped, none given)
 - ✅ 6/6 test files passing (some tests skipped: device rotation)
 - ⏱️ Duration: 45s
 - 🎯 Coverage: Full user workflows validated
@@ -348,7 +349,7 @@ Scanned lib/ and test/ directories:
 | Test timeout | Increase timeout or optimize slow tests |
 | Golden file mismatch | Regenerate with `--update-goldens` |
 | Dependency conflicts | Update `pubspec.yaml` and run `pub get` |
-| Integration test fails | Use `./scripts/run_integration_tests.sh` (runs each file individually on macOS) |
+| Integration test fails | Use the integration-test command `CLAUDE.md` gives (it should run each file individually on macOS) |
 | Build cache issues | Run `flutter clean && flutter pub get` |
 | Large files | Extract mixins, split into smaller focused files |
 
@@ -389,7 +390,7 @@ The `/fix-ci` command automatically executes all these steps:
    - Confirm all checks successful
    ↓
 9. Run Integration Tests Automatically
-   - Execute: ./scripts/run_integration_tests.sh
+   - Execute the integration-test command `CLAUDE.md` gives, if any
    - Report pass/fail/skip status
    ↓
 10. Check File Sizes Automatically

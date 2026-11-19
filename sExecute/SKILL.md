@@ -138,7 +138,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    exactly the invisible state this issue is about.
 
 7. **Update Progress on GitHub:**
-   Use MCP GitHub tools to post a comment on the issue. For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line. **Branch:** and **PR:** make the work locatable from the issue alone — always include both, even though nothing else in this step reads them back. Use the branch re-derived in Step 2. A PR does not exist yet at this point in the loop (`/create-pr` only runs once every task is checked off), so **PR:** is always the literal `none yet` here — write the line rather than omitting it, so its absence is visible rather than ambiguous:
+   Use `gh` to post a comment on the issue: write the comment to a `mktemp` file (never a fixed `/tmp` path: executors run concurrently and would clobber), then `gh issue comment <N> --body-file "$body"` and `rm -f "$body"`. For BDD tasks, add a **Feature:** `<feature_file>` line directly under the **Test:** line. **Branch:** and **PR:** make the work locatable from the issue alone — always include both, even though nothing else in this step reads them back. Use the branch re-derived in Step 2. A PR does not exist yet at this point in the loop (`/create-pr` only runs once every task is checked off), so **PR:** is always the literal `none yet` here — write the line rather than omitting it, so its absence is visible rather than ambiguous:
    > ### Task Completed: \<task description\>
    >
    > **Test:** `<test_file>` - PASSING
@@ -149,6 +149,13 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    >
    > ---
    > *Completed by /sExecute*
+
+   ```bash
+   body="$(mktemp)"
+   # write the comment above to "$body"
+   gh issue comment <N> --body-file "$body"
+   rm -f "$body"
+   ```
 
 8. **Check Off the Task in the Plan:**
    Flip this task's checkbox in the plan comment from `- [ ]` to `- [x]` — this is what lets a
@@ -187,9 +194,9 @@ If you encounter any of these situations, STOP and escalate:
 - Architectural decision needed that wasn't covered in the plan
 - Unclear requirements or ambiguous task description
 
-To escalate, use MCP GitHub tools to:
+To escalate:
 
-1. Post a comment on the issue:
+1. Post a comment on the issue (`mktemp` file + `gh issue comment <N> --body-file "$body"`, as in Step 7):
    > ### Escalation Required
    >
    > **Task:** \<task description\>
@@ -199,7 +206,14 @@ To escalate, use MCP GitHub tools to:
    > ---
    > *Escalated by /sExecute - needs /oPlan review*
 
-2. Add the `tdd-escalation` label to the issue.
+2. Add the `tdd-escalation` label to the issue. Create it first if the repo does not have it yet (`--force` is idempotent):
+
+   ```bash
+   gh label create tdd-escalation --force
+   gh issue edit <N> --add-label tdd-escalation
+   ```
+
+If an escalation `gh` call itself fails, still report the escalation text to the user — that is the only way out left, so do not loop on it.
 
 Then report: "Escalated to issue #<N>. Run `/oPlan <issue#>` to revise the plan."
 

@@ -19,7 +19,8 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 1. **Fetch Issue Context:**
    Use the `gh` CLI to read the issue title, body, labels, and comments:
    ```bash
-   gh issue view <N> --comments
+   gh issue view <N>              # title, body, labels
+   gh issue view <N> --comments   # comments, for escalations and earlier plans
    ```
 
 2. **Post Investigating Comment:**

@@ -4,15 +4,24 @@ Two kinds of check live here.
 
 ## Mechanical checks
 
-- `bash tests/check_stale_refs.sh` — the **test** command. Fails if `hExecute`,
-  `sExecute`, `create-pr`, `fix-ci` or `README.md` name a project-local test or
-  analyze script (`scripts/run_*`, `run_tests.sh`, `analyze_results`). The
-  skills take those commands from the target repo's `CLAUDE.md` instead.
-- `bash tests/check_v1_refs.sh` — the second half of the **test** command.
-  Fails if `docs/remote-access.md` or `README.md` names the v1 Dark Factory
-  promotion path (`TripleLiDarkFactory/factory`, its `skills/` directory or
-  `skills/README.md`, PR #25). v2 loads the skills from a pinned clone of this
-  repo (#46), so those references are history, not instructions.
+- `bash tests/check_refs.sh` — the **test** command. Runs both reference
+  checks below, reports every failure in one run, and fails if either fails.
+  Both checks source `tests/lib/forbid_refs.sh`, the one copy of the
+  scan-and-dispatch harness (recursive, case-insensitive; a grep error fails
+  loudly instead of reading as a pass).
+  - `bash tests/check_stale_refs.sh` fails if `hExecute`, `sExecute`,
+    `create-pr`, `fix-ci` or `README.md` name a project-local test or analyze
+    script (`scripts/run_*`, `run_tests.sh`, `analyze_results`). The skills
+    take those commands from the target repo's `CLAUDE.md` instead.
+  - `bash tests/check_v1_refs.sh` fails if anything under `docs/` (except
+    `docs/superpowers/`, which records past work) or `README.md` names the v1
+    Dark Factory promotion path. Matched, case-insensitively: the v1 org
+    `TripleLiDarkFactory`; the v1 repo's `skills/` directory as
+    `factory/skills/`, "factory's `skills/`" or "factory repo's `skills/`";
+    and its PR #25 as `factory#25` or `factory/pull/25`. A bare `#25` is not
+    matched, because this repo has its own #25. v2 loads the skills from a
+    pinned clone of this repo (#46), so those references are history, not
+    instructions.
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

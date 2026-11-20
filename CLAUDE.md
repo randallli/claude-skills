@@ -6,5 +6,5 @@ behavior is verified.
 
 ## Commands
 
-- **Test:** `bash tests/check_stale_refs.sh && bash tests/check_v1_refs.sh` (no single-file form: the whole chain is the test, and any argument is ignored; changes to skill *behavior* are additionally verified by the subagent scenarios in `tests/README.md`)
+- **Test:** `bash tests/check_refs.sh` (no single-file form: it runs every reference check, reports all of them, and its argument is ignored; changes to skill *behavior* are additionally verified by the subagent scenarios in `tests/README.md`)
 - **Analyze:** `bash tests/check_sync.sh`

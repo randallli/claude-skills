@@ -1,15 +1,20 @@
 #!/bin/bash
 # Regression test: no doc may describe the v1 Dark Factory promotion path.
 # v2 loads the skills from a pinned clone of this repo (randallli/claude-skills#46);
-# the v1 repo's skills/ directory, its skills/README.md and PR #25 are history.
+# the v1 repo's skills/ directory and its PR #25 are history.
+#
+# Matched (case-insensitively): the v1 org name; the v1 repo's skills/ directory
+# as `factory/skills/`, "factory's `skills/`" or "factory repo's `skills/`"; and
+# its PR #25 as `factory#25` or `factory/pull/25`. A bare `#25` is not matched:
+# this repo has its own #25.
+#
+# docs/superpowers/ is excluded: it holds records of past work, which name the
+# v1 path as history. tests/README.md names the tokens too and is not scanned.
 # Takes no arguments (there is no single-file form); any argument is ignored.
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 1
+. tests/lib/forbid_refs.sh
 
-out=$(grep -n 'TripleLiDarkFactory/factory\|factory/pull/25\|factory#25\|skills/README\.md\|factory/skills/' docs/remote-access.md README.md 2>&1)
-rc=$?
-case $rc in
-  0) echo "❌ v1 promotion-path references:"; echo "$out"; exit 1 ;;
-  1) echo "✅ no v1 promotion-path references"; exit 0 ;;
-  *) echo "❌ grep failed ($rc):"; echo "$out"; exit "$rc" ;;
-esac
+forbid_refs "v1 promotion-path references" \
+  'triplelidarkfactory\|factory/skills\|factory#25\|factory/pull/25\|factory\( repo\)\{0,1\}.s .skills/' \
+  --exclude-dir=superpowers docs README.md

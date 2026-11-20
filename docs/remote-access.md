@@ -8,10 +8,8 @@ covers only *reaching* the machine. Do the README setup first; nothing here depe
 nothing there depends on this.
 
 > **`mini1` is user-operated.** Run these commands yourself in a terminal. Agents don't execute
-> against that box — a Dark Factory convention: a worker that parks an item reports to GitHub, and
-> you diagnose it from there, not from a shell on the mini (see the
-> [v2 design](https://github.com/tripleli/DarkFactory/blob/main/docs/specs/2026-11-18-v2-label-poller-design.md), §2.2).
-> Everything below is written as copy-paste for a human.
+> against that box — a Dark Factory convention. Everything below is written as copy-paste for a
+> human.
 
 ## The shape of it
 
@@ -204,9 +202,9 @@ claude setup-token
 It prints a URL to authorize in a browser. If it insists on a local browser, run it from a
 GUI session on the machine (Screen Sharing) rather than over SSH — you only do this once.
 
-This is the same pattern the headless Dark Factory agents already use: the `factory` account
-authenticates from `~/.claude/.credentials.json` (mode `600`), not the keychain, which is
-precisely why its launchd-driven sessions work unattended.
+A headless account has to work the same way. The `factory` user on the mini authenticates from
+`~/.claude/.credentials.json` (mode `600`), not the keychain; a launchd-driven session that
+depended on the keychain could never get past this prompt unattended.
 
 Verify from a *fresh* SSH session — not the one you set it up in:
 
@@ -242,6 +240,10 @@ behavior mid-run. To promote a change: merge it here, then move the pin to the n
 The design behind this is the
 [v2 design](https://github.com/tripleli/DarkFactory/blob/main/docs/specs/2026-11-18-v2-label-poller-design.md),
 §5.1–5.2.
+
+Setting up the `factory` user itself — the clone at `skills.ref`, `factory.yml`, the worker
+settings file — is documented in [`tripleli/DarkFactory`](https://github.com/tripleli/DarkFactory),
+not here: the v2 design's §5.1 for the config and §7 for where it lives and the migration order.
 
 One macOS detail worth knowing: home directories are `drwxr-x---` with group `staff`, and these
 accounts share that group, so they **can** read each other's files. Cross-account symlinking is

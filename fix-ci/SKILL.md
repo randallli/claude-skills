@@ -176,12 +176,14 @@ Do this:
 7. **Check File Sizes** (automatically after integration tests)
 
    Run the file-size command from step 0, if there is one. If there is none,
-   skip this step and say so in the summary (`File sizes: skipped, no
-   **File sizes:** command in CLAUDE.md`). Do not substitute `wc -l`, a
-   `scripts/` file, or any other command.
+   skip this step and put `File sizes: skipped: no File sizes command in
+   CLAUDE.md` in the summary. Do not substitute `wc -l`, a `scripts/` file,
+   or any other command.
 
-   Report what the command prints. Thresholds are the ones the command (or
-   its `CLAUDE.md` bullet) states; fix-ci has none of its own.
+   The command must print its findings; fix-ci reads only its output, never
+   a file it writes. If it prints nothing, report "the file-size command
+   printed nothing" rather than "no large files". Thresholds are the ones
+   the command (or its `CLAUDE.md` bullet) states; fix-ci has none of its own.
 
    **If it flags large files:**
    - Report every flagged file with its line count
@@ -193,7 +195,7 @@ Do this:
    After all checks complete, provide comprehensive summary:
    - CI fixes applied and verified
    - Integration test results
-   - File size analysis (or: skipped, no file-size command)
+   - File size analysis (or: `File sizes: skipped: no File sizes command in CLAUDE.md`)
    - Recommended next actions
 
 ## Usage Patterns
@@ -272,22 +274,13 @@ Running: the integration-test command from step 0 (or: skipped, none given)
 - 🎯 Coverage: Full user workflows validated
 
 ### File Size Analysis
-Running: the file-size command from step 0 (or: skipped, none given)
+Running: the file-size command from step 0 (or: `File sizes: skipped: no File sizes command in CLAUDE.md`)
 
-**Files needing attention:**
-- ⚠️ lib/presentation/game/game_screen.dart: 732 lines (approaching 600 limit)
-- ❌ test/widget/game_screen_test.dart: 1,245 lines (exceeds 1,000 limit)
+**Files the command flagged** (its line counts and limits, verbatim):
+- ❌ <file>: <n> lines (<what the command says>)
 
 **Refactoring suggestions:**
-- Extract tutorial listeners to separate mixin (game_screen.dart)
-- Split game_screen_test.dart into:
-  - game_screen_basic_test.dart (widgets, layout)
-  - game_screen_tutorial_test.dart (tutorial integration)
-  - game_screen_interaction_test.dart (user interactions)
-
-**Good files (< limits):**
-- ✅ lib/presentation/game/game_controller.dart: 407 lines
-- ✅ test/unit/domain/well_test.dart: 654 lines
+- <one per flagged file: extract a mixin, split the test file, …>
 
 ### Next Steps
 ✅ **This group**: Committed and pushed
@@ -310,7 +303,7 @@ Running: the file-size command from step 0 (or: skipped, none given)
 ## Important Notes
 
 - **Spending limit fallback**: If GitHub Actions hit spending limit, runs tests/analysis locally
-- **Automatic execution**: Command runs all checks automatically (CI fixes, integration tests and file sizes, each when CLAUDE.md gives its command)
+- **Automatic execution**: Command runs all checks automatically (CI fixes; integration tests and file sizes when CLAUDE.md gives their commands)
 - **Keep PRs small**: Easier to review, faster to merge, less risk of conflicts
 - **Incremental progress**: Fix and merge blockers first, then iterative improvements
 - **Integration tests**: Run automatically after CI fixes; may skip if platform unavailable

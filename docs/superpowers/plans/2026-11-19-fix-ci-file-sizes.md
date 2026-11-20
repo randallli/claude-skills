@@ -39,6 +39,36 @@ failed citing `fix-ci/SKILL.md` lines 180, 185 and 206.
 - `tests/check_stale_refs.sh`: guard extended as above.
 - New: `tests/fixtures/target-with-file-sizes/`. `README.md` and `tests/README.md` updated.
 
+## Review follow-up (PR #62)
+
+The automated review on PR #62 left seven inline findings; all were verified
+against the files and fixed in one follow-up commit:
+
+- Output Format example hard-coded the removed thresholds (`approaching 600
+  limit`, `exceeds 1,000 limit`) and a "Good files" list: now a neutral
+  `<file>: <n> lines (<what the command says>)` template, no "Good files" block.
+- Step 7 assumed the command prints to stdout: it now says the command must
+  print its findings, fix-ci never reads a file it writes, and empty output is
+  reported as "printed nothing", not "no large files". `README.md` says the same.
+- Skip message was worded three ways: one string everywhere,
+  `File sizes: skipped: no File sizes command in CLAUDE.md`.
+- "each when CLAUDE.md gives its command" wrongly covered CI fixes: now
+  "CI fixes; integration tests and file sizes when CLAUDE.md gives their commands".
+- F5's outcomes file was git-ignored and its counts (12/20/32) contradicted the
+  fixture (11/8): committed as `tests/fixtures/outcomes-F5.md`, stating what
+  `tool/check_file_sizes.sh` really prints.
+- The fixture script printed raw `wc -l` and never flagged: it now flags
+  `lib/ > 10` and `test/ > 800`, so the 11-line `counter.dart` is FLAGGED and
+  F5 exercises step 7's flagged branch. No `-exec wc {} +` batching.
+
+Re-run after the fixes (haiku, 5 reps each, prompts rebuilt from the edited skill
+and fixture):
+
+| Scenario | Result |
+|---|---|
+| F4 no bullet | **5/5** - no `check_file_sizes`/`file_sizes.txt`/`wc`; step 0 and the File Size section both carry the single skip string |
+| F5 bullet | **5/5** - exactly one `WOULD RUN: bash tool/check_file_sizes.sh`; `lib/counter.dart: 11 lines (limit 10)` reported as flagged with a refactoring suggestion and a separate-PR recommendation; no invented limits or "good files" list |
+
 ## Notes
 
 - `tests/fixtures/harness-rules.md` still states `./scripts/check_file_sizes.sh` ->

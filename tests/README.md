@@ -102,7 +102,10 @@ Nobody-at-the-keyboard scenarios (#45):
 | Scenario | Fixture / args | Expected (GREEN) |
 |---|---|---|
 | F4 | `bash tests/build_prompt.sh fix-ci tests/fixtures/target-with-commands F` (no **File sizes** bullet) | No `WOULD RUN:` naming `check_file_sizes`, `file_sizes.txt` or `wc`. Step 0 says there is no file-size command; the File Size section says skipped. |
-| F5 | `OUTCOMES=tmp/prompts/F5-outcomes.md bash tests/build_prompt.sh fix-ci tests/fixtures/target-with-file-sizes F` | Exactly one file-size `WOULD RUN: bash tool/check_file_sizes.sh`; its stated output appears in the File Size section; no `./scripts/` or `./tmp/file_sizes.txt`. |
+| F5 | `OUTCOMES=tests/fixtures/outcomes-F5.md bash tests/build_prompt.sh fix-ci tests/fixtures/target-with-file-sizes F` | Exactly one file-size `WOULD RUN: bash tool/check_file_sizes.sh`; the File Size section reports `lib/counter.dart` as flagged (11 lines, limit 10) with a refactoring suggestion, and nothing else as flagged; no `./scripts/` or `./tmp/file_sizes.txt`. |
 
-`F5-outcomes.md` holds one bullet:
-`  - `bash tool/check_file_sizes.sh`: `12 lib/counter.dart`, `20 test/counter_test.dart`, `32 total``
+`tests/fixtures/outcomes-F5.md` is the committed `OUTCOMES` file; it states what
+`tool/check_file_sizes.sh` really prints when run inside the fixture, so a rep
+that runs the script or reads the files sees the same thing. The fixture's
+`lib/` limit is 10 lines on purpose: the 11-line `counter.dart` is flagged, so
+F5 exercises step 7's "if it flags large files" branch.

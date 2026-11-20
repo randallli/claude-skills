@@ -126,8 +126,10 @@ When a command is missing:
   both are missing does it skip local validation entirely; the PR still stands.
 - `fix-ci` reads both in its step 0. If both are missing it reports and stops;
   if one is missing it says which and skips that check throughout. Without an
-  **Integration tests** bullet it skips integration tests and says so. Without a **File sizes** bullet it skips
-  the file-size check and says so.
+  **Integration tests** bullet it skips integration tests and says so. Without a
+  **File sizes** bullet it skips the file-size check and says so. A **File sizes**
+  command must print its findings: `fix-ci` reads its output and never a file it
+  writes.
 
 This repo's own `CLAUDE.md` follows the same shape (its test has no single-file
 form), and `tests/README.md` describes how skill behavior is verified.

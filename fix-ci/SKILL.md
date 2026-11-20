@@ -193,7 +193,7 @@ Do this:
    After all checks complete, provide comprehensive summary:
    - CI fixes applied and verified
    - Integration test results
-   - File size analysis
+   - File size analysis (or: skipped, no file-size command)
    - Recommended next actions
 
 ## Usage Patterns
@@ -272,7 +272,7 @@ Running: the integration-test command from step 0 (or: skipped, none given)
 - 🎯 Coverage: Full user workflows validated
 
 ### File Size Analysis
-Scanned lib/ and test/ directories:
+Running: the file-size command from step 0 (or: skipped, none given)
 
 **Files needing attention:**
 - ⚠️ lib/presentation/game/game_screen.dart: 732 lines (approaching 600 limit)
@@ -310,7 +310,7 @@ Scanned lib/ and test/ directories:
 ## Important Notes
 
 - **Spending limit fallback**: If GitHub Actions hit spending limit, runs tests/analysis locally
-- **Automatic execution**: Command runs all checks automatically (CI fixes, integration tests, file size)
+- **Automatic execution**: Command runs all checks automatically (CI fixes, integration tests and file sizes, each when CLAUDE.md gives its command)
 - **Keep PRs small**: Easier to review, faster to merge, less risk of conflicts
 - **Incremental progress**: Fix and merge blockers first, then iterative improvements
 - **Integration tests**: Run automatically after CI fixes; may skip if platform unavailable
@@ -319,7 +319,7 @@ Scanned lib/ and test/ directories:
 - **Always verify**: After fixes, review changes before committing to ensure correctness
 - **Group by type**: Related fixes in same commit/PR (all line length, all cascades, etc.)
 - **One logical change per commit**: Makes history clear and enables easy reverts if needed
-- **File size matters**: Large files (>500 lines) make Claude's Read/Edit tools less effective; automatically checked
+- **File size matters**: Large files make Claude's Read/Edit tools less effective; checked when CLAUDE.md gives a **File sizes:** command
 - **Complete workflow**: Command executes all steps from diagnosis to final recommendations
 
 ## Common CI Issues and Solutions
@@ -376,8 +376,8 @@ The `/fix-ci` command automatically executes all these steps:
    - Report pass/fail/skip status
    ↓
 10. Check File Sizes Automatically
-    - Scan lib/ and test/ directories
-    - Report files > 500/800 lines
+    - Run the file-size command from step 0, if any
+    - Report the files it flags
    ↓
 11. Generate Final Report
     - Summary of all fixes

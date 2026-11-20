@@ -4,9 +4,9 @@ Two kinds of check live here.
 
 ## Mechanical checks
 
-- `bash tests/check_refs.sh` — the **test** command. Runs both reference
-  checks below, reports every failure in one run, and fails if either fails.
-  Both checks source `tests/lib/forbid_refs.sh`, the one copy of the
+- `bash tests/check_refs.sh` — the **test** command. Runs the reference
+  checks below, reports every failure in one run, and fails if any fails.
+  `check_stale_refs.sh` and `check_v1_refs.sh` source `tests/lib/forbid_refs.sh`, the one copy of the
   scan-and-dispatch harness (recursive, case-insensitive; a grep error fails
   loudly instead of reading as a pass).
   - `bash tests/check_stale_refs.sh` fails if `hExecute`, `sExecute`,
@@ -22,6 +22,12 @@ Two kinds of check live here.
     matched, because this repo has its own #25. v2 loads the skills from a
     pinned clone of this repo (#46), so those references are history, not
     instructions.
+  - `bash tests/check_promote_settings.sh` fails if `promote-settings/SKILL.md`
+    is missing, `upgrade-settings/` still exists, any tracked file outside
+    `docs/superpowers/` and `tests/` names `upgrade-settings` (the skill's name
+    before #22), or the skill's `## Post-Completion Suggestion` lacks its
+    `/create-pr` line. It scans with `git grep`, so untracked local files such
+    as `.claude/settings.local.json` cannot fail it.
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

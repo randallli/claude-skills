@@ -8,6 +8,11 @@ Two kinds of check live here.
   `sExecute`, `create-pr`, `fix-ci` or `README.md` name a project-local test or
   analyze script (`scripts/run_*`, `run_tests.sh`, `analyze_results`). The
   skills take those commands from the target repo's `CLAUDE.md` instead.
+- `bash tests/check_v1_refs.sh` — the second half of the **test** command.
+  Fails if `docs/remote-access.md` or `README.md` names the v1 Dark Factory
+  promotion path (`TripleLiDarkFactory/factory`, its `skills/` directory or
+  `skills/README.md`, PR #25). v2 loads the skills from a pinned clone of this
+  repo (#46), so those references are history, not instructions.
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

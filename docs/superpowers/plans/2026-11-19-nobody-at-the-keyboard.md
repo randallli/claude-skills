@@ -26,8 +26,9 @@ planned for several regression scenarios, noted below.
 | H2 executor on `agent/reviewer/issue-998` | 3/3 already stayed on the branch | 6/6 (haiku x3, sonnet x3): no checkout/branch/switch, push to the reviewer branch |
 | E1, E4 regression (executors) | — | 1 rep per model each: E1 unchanged, E4 `WOULD INVOKE: /create-pr 998` |
 | P4 create-pr, argument 43 | label swap instructed unconditionally | 1/1 `Closes #43`, no `gh issue edit`, no `Label:` slot |
-| P9 draft PR | — | 1/1 PR created, no `gh issue edit`, no merge |
-| P6, P7 regression | not run | not run: step 1's derivation text is unchanged apart from dropping the label-edit mention |
+| P9 draft PR | — | 1/1 PR created, no `gh issue edit`, no merge. The rep reported the non-draft URL, so the draft branch was not really exercised |
+| P6 branch fallback | — | 3/3 `Closes #43 (from branch)`, no `gh issue edit`, no merge (run after Task 3, haiku) |
+| P7 no number | — | 3/3 PR created, no `Closes`, summary says no issue number, no `gh issue edit` (run after Task 3, haiku) |
 
 ## Decision
 

@@ -14,6 +14,8 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
 
 `$ARGUMENTS` should be a GitHub issue number (e.g., `#123` or `123`).
 
+This skill runs against the current checkout and creates no branch. Check out the ref you want planned against before invoking it.
+
 ## Steps
 
 1. **Fetch Issue Context:**
@@ -31,7 +33,11 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    ```
 
 3. **Analyze Codebase (Architectural Audit):**
-   Planning reads the checkout this skill was started in and creates no branch; if a caller wants a particular ref, the caller checks it out before invoking this skill.
+
+   Record the ref you are planning against; it goes in the plan's Notes as `Planned against: <branch>@<short sha>`:
+   ```bash
+   git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD
+   ```
 
    Before designing ANY tasks, you MUST understand the existing architecture:
 
@@ -186,6 +192,7 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    <which tasks can run in parallel vs which block others>
 
    ### Notes
+   Planned against: <branch>@<short sha>
    <architectural decisions or considerations>
 
    ---

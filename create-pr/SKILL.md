@@ -12,23 +12,13 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
         that number is `N` — even if the branch name suggests another number.
      2. Otherwise derive `N` from the branch name. Only two forms count:
         `agent/<role>/issue-<N>` and `issue-<N>/task-…`.
-     3. Otherwise there is no `N`: write no `Closes` line, skip the label edit,
+     3. Otherwise there is no `N`: write no `Closes` line
         and say so in the summary rather than guessing a number.
    - Generate PR title and body, use project PR template if available.
      When `N` is known, the body MUST contain `Closes #<N>`. This is the
      GitHub-native issue↔PR link that both the factory and the human read,
      and merging the PR closes the issue.
    - Create PR: `gh pr create`
-   - Best-effort, and only when `N` is known: advance the issue's label to reflect that the work order is now
-     shippable: `gh issue edit <N> --add-label ready-for-review --remove-label
-     agent-started`. **Only do this when the PR is not a draft.** A draft PR
-     means the work order is still mid-flight — factory#30 opens one after the
-     first real commit — and the scheduler deliberately ignores drafts when it
-     reconciles this same transition, so advancing the label here would declare
-     the work shippable before it is and strand the Builder mid-work-order. If
-     this edit fails (for example the Builder's token lacks `issues: write` on
-     this repo), a failed label edit is not a failed PR. Record it in the summary's **Label:** slot and continue to step 2 — the scheduler's own reconcile pass is
-     the backstop for this transition.
 
 2. **Launch tests and linter in the background** (use `run_in_background: true` on each Bash call — do NOT chain with `&&`). Both commands come from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count.
    - **Tests:** Run the test command `CLAUDE.md` gives, for all tests. If `CLAUDE.md` gives no test command, run no tests and fill the Tests slot below with `skipped: no test command in CLAUDE.md`.
@@ -42,6 +32,16 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
      - `git add <files>`
      - `git commit -m "fix: ..."`
      - `git push`
+
+## When nobody is at the keyboard
+
+This skill may run under `claude -p` or a dispatcher with no human to answer. The same rules hold when a human is present.
+
+- There is nobody to ask. Never wait for input.
+- Push only the current branch; never create, switch or delete one.
+- Set no labels. Every `agent-*` label, `ready-for-review` and `needs-human` belong to whoever dispatched you.
+- Never merge.
+- Finish by leaving the artifact the caller checks for: a PR whose body contains `Closes #<N>`.
 
 ## Notes
 
@@ -59,7 +59,6 @@ End with:
 ## PR Summary
 - **PR:** <URL>
 - **Issue:** Closes #<N> (from argument | from branch) / none — no issue number
-- **Label:** ready-for-review / failed: <error> / skipped: draft PR / skipped: no issue number
 - **Tests:** X passing (+Y new) — or `skipped: no test command in CLAUDE.md`
 - **Linter:** clean / N issues — or `skipped: no analyze command in CLAUDE.md`
 - **Fixes pushed:** none / N commits

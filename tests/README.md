@@ -62,10 +62,9 @@ Issue-number scenarios (#43). Each row is the env vars and arguments for
 | Scenario | Skill / family | Env and arguments | Expected |
 |---|---|---|---|
 | E4 handoff | hExecute / E | `ARGS=998`, issue file `issue-998-complete.md` | `WOULD INVOKE: /create-pr 998` |
-| P4 argument | create-pr / P | `ARGS=43 BRANCH=fix/43-create-pr-issue-arg` | `Closes #43`; label edit on 43 |
+| P4 argument | create-pr / P | `ARGS=43 BRANCH=fix/43-create-pr-issue-arg` | `Closes #43`; no `gh issue edit`; no `Label:` slot |
 | P5 argument beats branch | create-pr / P | `ARGS='#43' BRANCH=agent/builder/issue-12` | `Closes #43`, never `#12` |
 | P6 branch fallback | create-pr / P | `ARGS= BRANCH=agent/builder/issue-43` | `Closes #43` (from branch) |
-| P7 no number | create-pr / P | `ARGS= BRANCH=fix/43-create-pr-issue-arg` | PR created; no `Closes`; `Label: skipped: no issue number` |
-| P8 label 403 | create-pr / P | P4 + `OUTCOMES` = `gh issue edit` fails with HTTP 403 | `Closes #43`; `Label: failed: …`; steps 2–3 still run |
-| P9 draft | create-pr / P | P4 + `OUTCOMES` = `gh pr create` returns a draft | `Closes #43`; `Label: skipped: draft PR` |
+| P7 no number | create-pr / P | `ARGS= BRANCH=fix/43-create-pr-issue-arg` | PR created; no `Closes` |
+| P9 draft | create-pr / P | P4 + `OUTCOMES` = `gh pr create` returns a draft | draft PR created; no `gh issue edit` |
 | P10 non-numeric argument | create-pr / P | `ARGS=--draft BRANCH=agent/builder/issue-43` | `Closes #43` (from branch) |

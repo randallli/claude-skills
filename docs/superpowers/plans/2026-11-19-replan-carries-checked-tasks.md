@@ -55,5 +55,16 @@ required Notes slot, with no prohibitions. No rationalization counters added.
 
 ## Mechanical checks
 
-`bash tests/check_stale_refs.sh` and `bash tests/check_sync.sh` stay green (the
-sync check does not yet cover the oPlan/fPlan pair; Task 3).
+`bash tests/check_stale_refs.sh` and `bash tests/check_sync.sh` stay green.
+Task 3 extended `check_sync.sh` to the oPlan/fPlan pair. Red: with fPlan
+untouched it exited 1, showing only the Escalation Handling and Notes-slot
+hunks. Green: after mirroring oPlan's edit, both pairs report in sync.
+
+## fPlan smoke (R1, `model: fable`)
+
+2/2 reps pass (a)-(d), scored by reading: exact `## TDD Plan` header, Tasks 1-2
+carried over `- [x]` before any `- [ ]`, Task 3 rewritten to stand alone plus a new
+`reset()` Task 4, first Notes line `**Kept from the previous plan:** Task 1, Task 2`.
+Both reps converged on the same shape as oPlan's green reps.
+
+> Rebase note (2026-11-19): #54 landed the same `check_sync.sh` extension to the oPlan/fPlan pair first; on rebase the branch took main's version (which also catches copied self-references). Task 3's Red/Green above describe the pre-rebase run.

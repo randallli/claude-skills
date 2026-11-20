@@ -28,6 +28,12 @@ Two kinds of check live here.
     before #22), or the skill's `## Post-Completion Suggestion` lacks its
     `/create-pr` line. It scans with `git grep`, so untracked local files such
     as `.claude/settings.local.json` cannot fail it.
+  - `bash tests/check_evaluate_pr_removed.sh` fails if `evaluate-pr/` exists or
+    any tracked file outside `docs/superpowers/` and `tests/` names
+    `evaluate-pr`. v2 drops the holdout half and defers the review half (#64),
+    and the factory loads skills from this repo at `skills.ref`, so the dropped
+    skill must not return. Its v1 version stays in the v1 factory repo at the
+    `v1.0.0` tag. It scans with `git grep`, like the promote-settings check.
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

@@ -74,15 +74,16 @@ If local settings doesn't exist, report that there's nothing to promote and exit
 - Removed: `.claude/settings.local.json`
 
 ### Next Steps
-- Run `/create-pr` to commit and share the updated settings.json
 - Local-only testing complete - permissions now team-wide
 ```
 
 ## Post-Completion Suggestion
 
-After displaying the summary, and only if `.claude/settings.json` was updated (not when there was nothing to promote, nothing new to add, or the JSON was invalid), suggest:
+After displaying the summary, run `git status --porcelain -- .claude/settings.json`. If it lists the file (modified or new), suggest:
 
-> Settings promoted. Run `/create-pr` to share the updated `.claude/settings.json` with your team.
+> Settings promoted. Commit `.claude/settings.json`, then run `/create-pr` to share it with your team.
+
+If it lists nothing, the project file did not change: make no suggestion. The commit comes first because `/create-pr` pushes and opens a PR but does not commit.
 
 ## Edge Cases
 

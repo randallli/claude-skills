@@ -229,7 +229,7 @@ This skill may run under `claude -p` or a dispatcher with no human to answer. Th
 
 - There is nobody to ask. When blocked, post the escalation comment and stop. Never wait for input.
 - When the current branch is `agent/<role>/issue-<N>` or `issue-<N>/task-…`, work on it and never create, switch or delete a branch. Step 2's `git checkout -B` fallback applies only off those branches.
-- Set only the result labels this skill owns: `tdd-plan-ready` and `tdd-escalation`. Any `agent-*` label and `needs-human` belong to whoever dispatched you.
+- Set only the result label this skill owns: `tdd-escalation`. `tdd-plan-ready` belongs to the planner; any `agent-*` label and `needs-human` belong to whoever dispatched you.
 - Never merge.
 - Finish by leaving the artifact the caller checks for: a ticked checkbox in the plan comment, a `tdd-escalation` label, or an open PR from `/create-pr <N>`.
 

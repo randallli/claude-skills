@@ -12,8 +12,8 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
         that number is `N` — even if the branch name suggests another number.
      2. Otherwise derive `N` from the branch name. Only two forms count:
         `agent/<role>/issue-<N>` and `issue-<N>/task-…`.
-     3. Otherwise there is no `N`: write no `Closes` line
-        and say so in the summary rather than guessing a number.
+     3. Otherwise there is no `N`: write no `Closes` line and say so in the
+        summary rather than guessing a number.
    - Generate PR title and body, use project PR template if available.
      When `N` is known, the body MUST contain `Closes #<N>`. This is the
      GitHub-native issue↔PR link that both the factory and the human read,
@@ -41,7 +41,7 @@ This skill may run under `claude -p` or a dispatcher with no human to answer. Th
 - Push only the current branch; never create, switch or delete one.
 - Set no labels. Every `agent-*` label, `ready-for-review` and `needs-human` belong to whoever dispatched you.
 - Never merge.
-- Finish by leaving the artifact the caller checks for: a PR whose body contains `Closes #<N>`.
+- Finish by leaving the artifact the caller checks for: a PR, whose body contains `Closes #<N>` when `N` is known (step 1).
 
 ## Notes
 

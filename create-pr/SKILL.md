@@ -1,21 +1,25 @@
 Create a GitHub PR immediately, then run tests and linter locally. Push any fixes as follow-up commits to the PR.
 
+**Issue number argument:** `$ARGUMENTS` — the GitHub issue number this PR closes (e.g. `#123` or `123`), or empty if none was given.
+
 ## Workflow
 
 1. **Push branch & create PR first:**
    - Push current branch: `git push -u origin <branch>`
    - Analyze changes: `git diff main...HEAD`
-   - Derive the issue number `N` from the current branch name — the only two
-     forms the factory mints are `agent/<role>/issue-<N>` and
-     `issue-<N>/task-…`. If the branch name matches neither form, skip the
-     rest of this step and say so in the summary rather than guessing a
-     number.
+   - Determine the issue number `N`, in this order:
+     1. If the **Issue number argument** at the top of this file is not empty,
+        that number is `N` — even if the branch name suggests another number.
+     2. Otherwise derive `N` from the branch name. Only two forms count:
+        `agent/<role>/issue-<N>` and `issue-<N>/task-…`.
+     3. Otherwise there is no `N`: write no `Closes` line, skip the label edit,
+        and say so in the summary rather than guessing a number.
    - Generate PR title and body, use project PR template if available.
-     Include `Closes #<N>` in the PR body — this is the GitHub-native
-     issue↔PR link, so merging the PR closes the work order and the
-     relationship is visible in the UI.
+     When `N` is known, the body MUST contain `Closes #<N>`. This is the
+     GitHub-native issue↔PR link that both the factory and the human read,
+     and merging the PR closes the issue.
    - Create PR: `gh pr create`
-   - Advance the issue's label to reflect that the work order is now
+   - Best-effort, and only when `N` is known: advance the issue's label to reflect that the work order is now
      shippable: `gh issue edit <N> --add-label ready-for-review --remove-label
      agent-started`. **Only do this when the PR is not a draft.** A draft PR
      means the work order is still mid-flight — factory#30 opens one after the
@@ -23,7 +27,7 @@ Create a GitHub PR immediately, then run tests and linter locally. Push any fixe
      reconciles this same transition, so advancing the label here would declare
      the work shippable before it is and strand the Builder mid-work-order. If
      this edit fails (for example the Builder's token lacks `issues: write` on
-     this repo), report it and continue — the scheduler's own reconcile pass is
+     this repo), a failed label edit is not a failed PR. Record it in the summary's **Label:** slot and continue to step 2 — the scheduler's own reconcile pass is
      the backstop for this transition.
 
 2. **Launch tests and linter in the background** (use `run_in_background: true` on each Bash call — do NOT chain with `&&`). Both commands come from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count.
@@ -54,6 +58,8 @@ End with:
 ```
 ## PR Summary
 - **PR:** <URL>
+- **Issue:** Closes #<N> (from argument | from branch) / none — no issue number
+- **Label:** ready-for-review / failed: <error> / skipped: draft PR / skipped: no issue number
 - **Tests:** X passing (+Y new) — or `skipped: no test command in CLAUDE.md`
 - **Linter:** clean / N issues — or `skipped: no analyze command in CLAUDE.md`
 - **Fixes pushed:** none / N commits

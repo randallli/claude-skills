@@ -192,6 +192,7 @@ This skill runs against the current checkout and creates no branch. Check out th
    <which tasks can run in parallel vs which block others>
 
    ### Notes
+   **Kept from the previous plan:** <Task N, Task M | none (first plan) | none (no task was checked)>
    Planned against: <branch>@<short sha>
    <architectural decisions or considerations>
 
@@ -209,14 +210,18 @@ This skill runs against the current checkout and creates no branch. Check out th
 
 ## Escalation Handling
 
-If this command is invoked because `/hExecute` escalated:
-- Read the escalation comment from the comments fetched in step 1
-- Revise the plan to address the blocker
-- Post an updated plan as a new comment (same command as Step 5)
-- Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output
+If this command is invoked because `/hExecute` escalated, build the revised plan in this order:
+
+1. **Read the blocker.** From the comments fetched in step 1, read the most recent `### Escalation Required` comment. Its **Blocker** is what the revision must address.
+2. **Locate the previous plan.** In the same step-1 output, take the most recent comment whose body **starts with** `## TDD Plan` (the same predicate `/hExecute` step 1 uses). Its body is already in hand; no further `gh` call is needed.
+3. **List its checked tasks.** Every `- [x]` task entry is finished work, in order.
+4. **Compose the revised plan.** Start the `### Tasks` list with those checked entries, in order, each copied unchanged (title line and sub-bullets) and still `- [x]`. After them, add, change or remove only the unfinished (`- [ ]`) tasks so that they address the blocker, numbering them on from the last kept task (kept Tasks 1–2 → the revised tasks start at Task 3). A box is `- [x]` only where the previous plan's comment has it `- [x]`. If a kept task's design must change, leave its entry and box as they are and add a new unfinished task that amends it; say so in the Notes slot.
+5. **Fill the Notes slot.** Write `**Kept from the previous plan:**` as the first line under `### Notes`: the kept tasks (`Task 1, Task 2`), or `none (no task was checked)` when the previous plan had no `- [x]` task.
+6. Post the revised plan as a new comment (same command as Step 5).
+7. Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output
 
 ## Output
 
-After posting the plan comment, use the comment URL that `gh issue comment` printed in Step 5. Summarize the plan and end with:
+After posting the plan comment, use the comment URL that `gh issue comment` printed in Step 5. Summarize the plan (on an escalation, name the kept tasks) and end with:
 > "TDD Plan posted to issue #<N>. Review the full plan: <comment_url>
 > Run `/hExecute <issue#>` to begin implementation."

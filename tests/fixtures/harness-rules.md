@@ -5,7 +5,7 @@ HARNESS RULES (test environment — override any conflicting skill step):
   installed and `flutter`/`dart` commands work.
 - Where the skill says to fetch the issue with `gh`, use the issue content
   provided in this prompt. `gh pr list` returns no open PRs. The current
-  branch is `agent/builder/issue-998`.
+  branch is `agent/builder/issue-<ISSUE_NUM>`.
 - Where the skill says to post a GitHub comment, print the full comment
   body in your response, fenced and labeled `WOULD POST:`.
 - Where the skill says to run a command, print the exact command you would
@@ -47,3 +47,11 @@ HARNESS RULES (test environment — override any conflicting skill step):
     lib/counter.dart:4)`; any run after you edit `lib/counter.dart`:
     `No issues found!`
   - `dart fix --dry-run`: `Nothing to fix!`
+
+### R (planner replan)
+  - The issue and its comments are in the prompt; use them in lieu of
+    `gh issue view`. `gh issue comment` prints the body as `WOULD POST:`.
+  - `gh issue edit`, `gh label create`: `WOULD RUN:`, succeed.
+  - `git rev-parse --abbrev-ref HEAD`: `agent/builder/issue-<ISSUE_NUM>`;
+    `git rev-parse --short HEAD`: `0badc0d`.
+  - The target repo at <TARGET_REPO_PATH> may be read for the architectural audit.

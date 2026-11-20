@@ -6,8 +6,10 @@ Two kinds of check live here.
 
 - `bash tests/check_refs.sh` — the **test** command. Runs the reference
   checks below, reports every failure in one run, and fails if any fails.
-  `check_stale_refs.sh` and `check_v1_refs.sh` source `tests/lib/forbid_refs.sh`, the one copy of the
-  scan-and-dispatch harness (recursive, case-insensitive; a grep error fails
+  `check_stale_refs.sh`, `check_v1_refs.sh` and `check_removed_skills.sh`
+  source `tests/lib/forbid_refs.sh`, the one copy of the scan-and-dispatch
+  harness (case-insensitive; `forbid_refs` scans paths recursively,
+  `forbid_tracked_refs` scans tracked files with `git grep`; a grep error fails
   loudly instead of reading as a pass).
   - `bash tests/check_stale_refs.sh` fails if `hExecute`, `sExecute`,
     `create-pr`, `fix-ci` or `README.md` name a project-local test or analyze
@@ -23,17 +25,17 @@ Two kinds of check live here.
     pinned clone of this repo (#46), so those references are history, not
     instructions.
   - `bash tests/check_promote_settings.sh` fails if `promote-settings/SKILL.md`
-    is missing, `upgrade-settings/` still exists, any tracked file outside
-    `docs/superpowers/` and `tests/` names `upgrade-settings` (the skill's name
-    before #22), or the skill's `## Post-Completion Suggestion` lacks its
-    `/create-pr` line. It scans with `git grep`, so untracked local files such
-    as `.claude/settings.local.json` cannot fail it.
-  - `bash tests/check_evaluate_pr_removed.sh` fails if `evaluate-pr/` exists or
-    any tracked file outside `docs/superpowers/` and `tests/` names
-    `evaluate-pr`. v2 drops the holdout half and defers the review half (#64),
-    and the factory loads skills from this repo at `skills.ref`, so the dropped
-    skill must not return. Its v1 version stays in the v1 factory repo at the
-    `v1.0.0` tag. It scans with `git grep`, like the promote-settings check.
+    is missing or the skill's `## Post-Completion Suggestion` lacks its
+    `/create-pr` line.
+  - `bash tests/check_removed_skills.sh` fails if a removed skill on its
+    `REMOVED` list is still tracked, or any tracked file names it outside
+    `docs/superpowers/`, the script itself and this README (a hyphen in the
+    name also matches `_` and a space). The list: `upgrade-settings`
+    (promote-settings' name before #22) and `evaluate-pr` (v1's Evaluator,
+    dropped by v2 in #64). It reads tracked state only (`git ls-files`,
+    `git grep` via `forbid_tracked_refs`), so untracked leftovers such as a
+    `.DS_Store` or `.claude/settings.local.json` cannot fail it. To remove
+    another skill, add its name to `REMOVED`.
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

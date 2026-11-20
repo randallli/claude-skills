@@ -1,4 +1,4 @@
-Upgrade permissions from `.claude/settings.local.json` to `.claude/settings.json` (project-level settings).
+Promote permissions from `.claude/settings.local.json` to `.claude/settings.json` (project-level settings).
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Promotes local-only permissions to team-wide availability by merging them into t
 2. **Check for project settings**: Verify `.claude/settings.json` exists
 3. **Parse both files**: Ensure both are valid JSON
 
-If local settings doesn't exist, report that there's nothing to upgrade and exit.
+If local settings doesn't exist, report that there's nothing to promote and exit.
 
 ### Phase 2: Merge Permissions
 
@@ -45,12 +45,12 @@ If local settings doesn't exist, report that there's nothing to upgrade and exit
 3. **Report changes**:
    - List permissions added to each category (allow/deny/ask)
    - Show total counts before and after
-   - Confirm successful upgrade
+   - Confirm successful promotion
 
 ## Output Format
 
 ```
-## Settings Upgrade Summary
+## Settings Promotion Summary
 
 ### Permissions Added to Project Settings
 
@@ -80,14 +80,14 @@ If local settings doesn't exist, report that there's nothing to upgrade and exit
 
 ## Edge Cases
 
-- **No local settings**: Report nothing to upgrade, exit gracefully
+- **No local settings**: Report nothing to promote, exit gracefully
 - **Duplicate permissions**: Remove duplicates, report as already present
 - **Empty local settings**: Report nothing to add
 - **Invalid JSON**: Report error and don't modify files
 
 ## Best Practices
 
-- Review permissions before upgrading to ensure they're appropriate for the whole team
+- Review permissions before promoting to ensure they're appropriate for the whole team
 - Test permissions locally first before promoting to project level
 - Commit settings.json changes with a clear message explaining what was added
 - Use this after validating that local permissions work as expected

@@ -6,7 +6,7 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 
 rc=0
-for check in tests/check_stale_refs.sh tests/check_v1_refs.sh; do
+for check in tests/check_stale_refs.sh tests/check_v1_refs.sh tests/check_promote_settings.sh; do
   bash "$check" || rc=1
 done
 exit $rc

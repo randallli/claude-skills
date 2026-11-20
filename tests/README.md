@@ -22,6 +22,10 @@ Two kinds of check live here.
     matched, because this repo has its own #25. v2 loads the skills from a
     pinned clone of this repo (#46), so those references are history, not
     instructions.
+  - `bash tests/check_promote_settings.sh` fails if `promote-settings/SKILL.md`
+    is missing, `upgrade-settings/` still exists, or any file outside
+    `docs/superpowers/`, `tests/` and the git/temp directories names
+    `upgrade-settings`. The skill was renamed from `upgrade-settings` (#22).
 - `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
   SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
   differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the

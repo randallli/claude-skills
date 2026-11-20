@@ -64,3 +64,13 @@ executor, so every rep produced the fixed footer and nothing else, even for a
 
 `bash tests/check_stale_refs.sh`, `bash tests/check_refs.sh` and
 `bash tests/check_sync.sh` are green.
+
+## Review revision (PR #63)
+
+The PR review raised eight findings; all were applied:
+
+- **Planners (oPlan/fPlan):** the Escalation Handling opener now reads "`/hExecute` or `/sExecute` escalated", so an `/sExecute` escalation gets the same checked-task carry-over and label removal. The `/sExecute` trigger in step 4 and the rule in Escalation Handling step 4 are scoped to the **most recent** `### Escalation Required` comment and match the signature as a prefix (`*Escalated by /hExecute …*`), since the executor's literal line continues after the name.
+- **execute-tagged-issues:** step b's script prints exactly one line, `/hExecute`, `/sExecute`, `DEFAULT /hExecute`, `NO_PLAN` or `API_ERROR`. An unplanned issue is no longer dispatched; a `gh api` failure is no longer silenced; a defaulted executor is reported in step 6 as a default, not a recommendation. Step 4 now runs every per-issue read before the single-message dispatch.
+- **README:** the recommendation note moved from the `sExecute` row to the `oPlan` row, and a new `execute-tagged-issues` row says it acts on the section. `tests/README.md` X1 row uses double-backtick spans so the nested code renders.
+
+Smoke re-run of X3 (`issue-999.md`, opus, 2 reps) against the revised wording, scored from full posted bodies: **2/2**. Both matched the signature as a prefix, recommended `/sExecute` with the reason `/hExecute escalated at Task 3; see the Escalation Required comment`, kept Tasks 1–2 `- [x]` with the Kept line, matched the footer and the closing line, added `tdd-plan-ready` and removed `tdd-escalation`. Not re-run: X1 and X2 (the changed lines are escalation-only) and the `/sExecute`-escalation path (no fixture carries an `*Escalated by /sExecute …*` comment; adding one is a follow-up). `bash tests/check_refs.sh` and `bash tests/check_sync.sh` are green.

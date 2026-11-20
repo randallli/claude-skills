@@ -108,7 +108,7 @@ Recommended-executor scenarios (#58). All family R against `target-with-commands
 
 | Scenario | Skill | Issue file | Expected |
 |---|---|---|---|
-| X1 simple first plan | oPlan (opus) | `issue-994.md` | one `### Recommended Executor` section naming `/hExecute` with a reason; footer `Ready for /hExecute`; closing line `Run `/hExecute 994`` plus the reason |
+| X1 simple first plan | oPlan (opus) | `issue-994.md` | one `### Recommended Executor` section naming `/hExecute` with a reason; footer `Ready for /hExecute`; closing line ``Run `/hExecute 994` `` plus the reason |
 | X2 cross-layer first plan | oPlan (opus), fPlan (fable) | `issue-993.md` | the same shape naming `/sExecute`; reason names the layer-spanning or abstraction-changing task(s) |
 | X3 replan after a `/hExecute` escalation | oPlan (opus) | `issue-999.md` | names `/sExecute`, reason names the escalation; Tasks 1-2 still kept `- [x]` with the `Kept from the previous plan:` line (#41 regression) |
 

@@ -139,7 +139,7 @@ This skill runs against the current checkout and creates no branch. Check out th
    - the tasks span several layers or modules (more than one of model, service, provider, screen), or more than one task edits the same file in non-mechanical ways;
    - a task changes an existing abstraction or interface beyond a rename or a line-for-line copy, or forces its implementers or callers to change;
    - a task's correctness depends on ordering, concurrency, async state or persistence;
-   - this is a revision after an `### Escalation Required` comment signed `*Escalated by /hExecute*` (see Escalation Handling).
+   - this is a revision after a `tdd-escalation` and the most recent `### Escalation Required` comment is signed `*Escalated by /hExecute …*` (see Escalation Handling). Older escalations in the issue's history do not count.
    Otherwise choose `/hExecute`. The reason names the task(s) that decided it (`tasks 3–5 refactor a cross-module interface`; `all tasks are single-file edits with plain assertions`). Use the same executor in the section, the footer and the Output step.
 
 5. **Post Plan to GitHub:**
@@ -222,12 +222,12 @@ This skill runs against the current checkout and creates no branch. Check out th
 
 ## Escalation Handling
 
-If this command is invoked because `/hExecute` escalated, build the revised plan in this order:
+If this command is invoked because `/hExecute` or `/sExecute` escalated, build the revised plan in this order:
 
 1. **Read the blocker.** From the comments fetched in step 1, read the most recent `### Escalation Required` comment. Its **Blocker** is what the revision must address.
 2. **Locate the previous plan.** In the same step-1 output, take the most recent comment whose body **starts with** `## TDD Plan` (the same predicate `/hExecute` step 1 uses). Its body is already in hand; no further `gh` call is needed.
 3. **List its checked tasks.** Every `- [x]` task entry is finished work, in order.
-4. **Compose the revised plan.** Start the `### Tasks` list with those checked entries, in order, each copied unchanged (title line and sub-bullets) and still `- [x]`. After them, add, change or remove only the unfinished (`- [ ]`) tasks so that they address the blocker, numbering them on from the last kept task (kept Tasks 1–2 → the revised tasks start at Task 3). A box is `- [x]` only where the previous plan's comment has it `- [x]`. If a kept task's design must change, leave its entry and box as they are and add a new unfinished task that amends it; say so in the Notes slot. If the escalation comment is signed `*Escalated by /hExecute*`, the revised plan recommends `/sExecute` and its reason names the escalation (`/hExecute escalated at Task 3; see the Escalation Required comment`); an escalation signed by `/sExecute` keeps `/sExecute`.
+4. **Compose the revised plan.** Start the `### Tasks` list with those checked entries, in order, each copied unchanged (title line and sub-bullets) and still `- [x]`. After them, add, change or remove only the unfinished (`- [ ]`) tasks so that they address the blocker, numbering them on from the last kept task (kept Tasks 1–2 → the revised tasks start at Task 3). A box is `- [x]` only where the previous plan's comment has it `- [x]`. If a kept task's design must change, leave its entry and box as they are and add a new unfinished task that amends it; say so in the Notes slot. If that most recent escalation comment is signed `*Escalated by /hExecute …*` (match the prefix; the executor's signature line continues after the name), the revised plan recommends `/sExecute` and its reason names the escalation (`/hExecute escalated at Task 3; see the Escalation Required comment`); one signed `*Escalated by /sExecute …*` keeps `/sExecute`.
 5. **Fill the Notes slot.** Write `**Kept from the previous plan:**` as the first line under `### Notes`: the kept tasks (`Task 1, Task 2`), or `none (no task was checked)` when the previous plan had no `- [x]` task.
 6. Post the revised plan as a new comment (same command as Step 5).
 7. Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output

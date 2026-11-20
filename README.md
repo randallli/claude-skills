@@ -151,7 +151,8 @@ git commit -m "Add my-skill"
 |-------|-------------|
 | `create-pr` | Push branch, create PR immediately, then run tests/linter and push fixes |
 | `merge-pr` | Squash-merge the most recent PR and create a new branch for continued development |
-| `oPlan` | Lead Architect (Opus) — analyze a GitHub issue and post a TDD plan as a GitHub comment |
+| `oPlan` | Lead Architect (Opus) — analyze a GitHub issue and post a TDD plan as a GitHub comment; its `### Recommended Executor` section names the executor to run (`hExecute` or `sExecute`) |
 | `hExecute` | TDD Executor (Haiku) — implement one task at a time from an oPlan TDD plan using Red-Green-Refactor |
-| `sExecute` | TDD Executor (Sonnet) — same as `hExecute`, for more complex tasks; the plan's `### Recommended Executor` section says which executor to run |
+| `sExecute` | TDD Executor (Sonnet) — same as `hExecute`, for more complex tasks |
+| `execute-tagged-issues` | Dispatch the executor the plan's `### Recommended Executor` section names on each issue labelled `agent-should-execute` |
 | `fix-ci` | Diagnose and fix CI failures incrementally — handles Flutter test failures, analyzer warnings, and build issues |

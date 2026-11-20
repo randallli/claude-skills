@@ -5,7 +5,7 @@ description: Use when the user asks to execute, hExecute, or process GitHub issu
 
 # Execute Tagged Issues
 
-Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent to run `/hExecute` on each. As each issue moves through the pipeline, update its labels: remove `agent-should-execute` and add `agent-started` when work begins, then swap `agent-started` for `ready-for-review` when the subagent finishes successfully.
+Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent to run the executor the plan recommends (`/hExecute` or `/sExecute`) on each. As each issue moves through the pipeline, update its labels: remove `agent-should-execute` and add `agent-started` when work begins, then swap `agent-started` for `ready-for-review` when the subagent finishes successfully.
 
 ## Steps
 
@@ -29,8 +29,17 @@ Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent t
    gh issue edit <N> --remove-label "agent-should-execute" --add-label "agent-started"
    ```
 
-   b. Dispatch a subagent (subagent_type: `claude`, **`isolation: "worktree"`**) with a prompt like:
-   > Run the /hExecute skill on GitHub issue #<N> in <owner/repo> (title: "<title>"). Invoke the hExecute skill via the Skill tool with arg "<N>". Follow the skill's instructions exactly. Report back a brief summary (under 150 words) of what tasks were executed and the final state (PR opened, tests passing, blockers, etc.).
+   b. Read the recommended executor from the issue's most recent plan comment. One Bash call (shell variables do not survive between calls); the `startswith("## TDD Plan")` predicate and `tail -1` are the same ones `/hExecute` step 1 uses, so dispatcher and executor read the same comment. A plan without a `### Recommended Executor` section (posted before #58) defaults to `/hExecute`:
+   ```bash
+   plan_id=$(gh api repos/{owner}/{repo}/issues/<N>/comments --paginate \
+     --jq '.[] | select(.body | startswith("## TDD Plan")) | .id' | tail -1)
+   executor=$(gh api "repos/{owner}/{repo}/issues/comments/$plan_id" --jq .body 2>/dev/null \
+     | grep -A2 '^### Recommended Executor' | grep -oE '/[hs]Execute' | head -1)
+   executor=${executor:-/hExecute}
+   ```
+
+   c. Dispatch a subagent (subagent_type: `claude`, **`isolation: "worktree"`**) with a prompt like, where `<executor>` is the value from `b.`:
+   > Run the <executor> skill on GitHub issue #<N> in <owner/repo> (title: "<title>"). Invoke the <executor without the slash> skill via the Skill tool with arg "<N>". Follow the skill's instructions exactly. Report back a brief summary (under 150 words) of what tasks were executed and the final state (PR opened, tests passing, blockers, etc.).
 
 5. **When each subagent finishes, update its issue's labels based on the outcome:**
 
@@ -38,16 +47,17 @@ Find open GitHub issues labeled `agent-should-execute` and dispatch a subagent t
      ```bash
      gh issue edit <N> --remove-label "agent-started" --add-label "ready-for-review"
      ```
-   - **Blocked or escalated** (e.g. `/hExecute` escalated to `/oPlan`, tests failing, missing plan) — leave `agent-started` in place (do **not** mark ready-for-review) and surface the blocker in the report.
+   - **Blocked or escalated** (e.g. the executor escalated to `/oPlan`, tests failing, missing plan) — leave `agent-started` in place (do **not** mark ready-for-review) and surface the blocker in the report.
 
-6. **Report results:** One bullet per issue with the issue number, title, PR link (if opened), final state, and which status label it now carries.
+6. **Report results:** One bullet per issue with the issue number, title, PR link (if opened), final state, which executor was dispatched, and which status label it now carries.
 
 ## Notes
 
-- **`isolation: "worktree"` is required.** /hExecute edits files, runs tests, and commits on a per-issue branch. Without per-agent worktrees, parallel runs interleave edits on a single checkout and corrupt each other's work. The worktree is auto-cleaned if no changes were made; otherwise the path/branch is returned in the agent's result so you can push/PR from it.
+- **`isolation: "worktree"` is required.** The executor edits files, runs tests, and commits on a per-issue branch. Without per-agent worktrees, parallel runs interleave edits on a single checkout and corrupt each other's work. The worktree is auto-cleaned if no changes were made; otherwise the path/branch is returned in the agent's result so you can push/PR from it.
 - Remove `agent-should-execute` *before* dispatching, not after — otherwise a second invocation of this skill (or a concurrent run) will re-execute the same issue. Adding `agent-started` at the same time gives a visible "in progress" signal while the subagent runs.
 - Only apply `ready-for-review` on a clean completion. A blocked/escalated issue keeps `agent-started` so it's clear it still needs attention rather than review.
 - A blocked/escalated issue leaves the auto-execute queue: `agent-should-execute` was already removed at dispatch, and the issue keeps `agent-started` (plus any `tdd-escalation` the subagent added), so a later sweep won't re-pick it. This is intended — escalations need `/oPlan` revision (and a re-tag with `agent-should-execute`) before they're eligible to run again.
-- `/hExecute` requires a TDD plan already on the issue (from `/oPlan`). If the issue isn't planned yet, the subagent will report that as a blocker — relay it.
-- Dispatch issues in parallel when there's more than one; each /hExecute run is independent (separate branches, separate worktrees).
+- The executor requires a TDD plan already on the issue (from `/oPlan`). If the issue isn't planned yet, the subagent will report that as a blocker — relay it.
+- Dispatch issues in parallel when there's more than one; each executor run is independent (separate branches, separate worktrees).
 - If `gh issue edit` fails (e.g., label already removed), continue with dispatch anyway and note it in the report.
+- The recommendation lives in the plan comment, not in a label: the planners set only `tdd-plan-ready` and `tdd-escalation`, and a replan can change the recommendation by posting a new plan without any label swap.

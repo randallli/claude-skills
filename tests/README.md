@@ -19,13 +19,15 @@ Two kinds of check live here.
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
 (GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
-(three target-repo variants; four issue fixtures: `issue-998.md` and
-`issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R; and the
+(three target-repo variants; five issue fixtures: `issue-998.md` and
+`issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R, and
+`issue-996.md` for R with no plan yet (a blocked planner); and the
 harness rules, whose `<TARGET_REPO_PATH>`, `<BRANCH>` and `<ISSUE_NUM>`
 placeholders `build_prompt.sh` fills in); the captured runs are summarized in
 `docs/superpowers/plans/2026-11-19-claude-md-commands.md`,
 `docs/superpowers/plans/2026-11-19-replan-carries-checked-tasks.md` and
-`docs/superpowers/plans/2026-11-19-create-pr-issue-arg.md`. Keep
+`docs/superpowers/plans/2026-11-19-create-pr-issue-arg.md` and
+`docs/superpowers/plans/2026-11-19-nobody-at-the-keyboard.md`. Keep
 prompts and captures under `tmp/` (git-ignored).
 
 Recipe, one fresh dispatch per rep:
@@ -68,3 +70,10 @@ Issue-number scenarios (#43). Each row is the env vars and arguments for
 | P7 no number | create-pr / P | `ARGS= BRANCH=fix/43-create-pr-issue-arg` | PR created; no `Closes` |
 | P9 draft | create-pr / P | P4 + `OUTCOMES` = `gh pr create` returns a draft | draft PR created; no `gh issue edit` |
 | P10 non-numeric argument | create-pr / P | `ARGS=--draft BRANCH=agent/builder/issue-43` | `Closes #43` (from branch) |
+
+Nobody-at-the-keyboard scenarios (#45):
+
+| Scenario | Skill / family | Env and arguments | Expected |
+|---|---|---|---|
+| H1 blocked planner | oPlan (opus), fPlan (fable) / R | issue file `issue-996.md` (owner says to ask before planning) | one `WOULD POST:` escalation starting `### Escalation Required` with a `**Blocker:**` line; no `tdd-plan-ready`, no `tdd-escalation`, no `agent-*` label edit; no "re-run" instruction; stops |
+| H2 dispatched non-builder branch | hExecute (haiku), sExecute (sonnet) / E | `BRANCH=agent/reviewer/issue-998` | no `git checkout`/`branch`/`switch`; push to `agent/reviewer/issue-998` |

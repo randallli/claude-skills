@@ -1,6 +1,6 @@
 # Replan carries checked tasks — Plan record
 
-> **STATUS: Task 2 of 3 EXECUTED 2026-11-19** (oPlan only; fPlan mirror is Task 3).
+> **STATUS: EXECUTED 2026-11-19, all three tasks; recipe revised after PR #56 review** (see "Review revision" below).
 > Evidence for randallli/claude-skills#41, not instructions to re-run. The skill
 > files as merged are authoritative.
 
@@ -68,3 +68,31 @@ carried over `- [x]` before any `- [ ]`, Task 3 rewritten to stand alone plus a 
 Both reps converged on the same shape as oPlan's green reps.
 
 > Rebase note (2026-11-19): #54 landed the same `check_sync.sh` extension to the oPlan/fPlan pair first; on rebase the branch took main's version (which also catches copied self-references). Task 3's Red/Green above describe the pre-rebase run.
+
+## Review revision (PR #56)
+
+The PR review asked for four changes to the recipe and three to the harness:
+read the escalation blocker first; drop the `gh api` id/body calls (the body is
+already in step 1's output); define the Notes slot for first plans
+(`none (first plan)`) and for replans with nothing checked
+(`none (no task was checked)`); say that revised tasks are numbered on from the
+last kept task and that a kept task whose design must change is amended by a
+new unfinished task, never edited. Harness: `<ISSUE_NUM>` placeholder in
+`harness-rules.md` (filled by `build_prompt.sh`, 998 for P/F), a stated
+`git rev-parse` outcome in the R block instead of the stale `git checkout`/
+`git pull`, a guard on fixtures without a `# Issue #N` header, and a
+file-exists fallback for the issue path.
+
+GREEN re-run with the revised recipe and harness (opus, 5 reps each, read by hand):
+
+| Scenario | After review revision |
+|---|---|
+| R1 (issue-999, Tasks 1-2 checked) | **5/5** — Tasks 1-2 verbatim `- [x]` first; revised tasks numbered 3, 4; Notes first line `Task 1, Task 2`; all five declined the "rethink the whole plan" comment for the checked tasks; one rep noted the fixture test file lacks Task 2's test and put that in Notes, not inside the kept entry |
+| R2 (issue-997, nothing checked) | **5/5** — no `- [x]`; numbering from 1; Notes first line `none (no task was checked)` |
+
+All ten used the stated `git rev-parse` outcome for `Planned against:`, so that line
+is now scorable. No RED re-run: the baseline failure (no Kept line, drift in a
+copied entry) is unchanged by these edits. Side finding, out of scope: the
+`target-with-commands` fixture's `test/counter_test.dart` holds only Task 1's test
+although Task 2 is checked in `issue-999.md`; reps notice and (correctly) do not act.
+

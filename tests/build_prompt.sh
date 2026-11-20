@@ -3,13 +3,18 @@
 # Usage: bash tests/build_prompt.sh <skill-dir> <fixture-dir> <E|P|F|R> [issue-file] > prompt.md
 #   skill-dir    hExecute | sExecute | create-pr | fix-ci | oPlan | fPlan
 #   fixture-dir  tests/fixtures/target-with-commands (etc.); its parent directory
-#                must hold issue-998.md and harness-rules.md
+#                must hold harness-rules.md and the issue fixtures (issue-998.md
+#                for E; issue-999.md and issue-997.md for R)
 #   family       E = executor, P = create-pr, F = fix-ci, R = planner replan
 #                (selects the outcome block)
-#   issue-file   E and R only; default issue-998.md (E) or issue-999.md (R)
+#   issue-file   E and R only; default issue-998.md (E) or issue-999.md (R).
+#                A path that does not exist as given is looked up under the
+#                fixtures root. Its first line must be `# Issue #N ...`; N also
+#                fills <ISSUE_NUM> in harness-rules.md (998 when no issue is used).
 set -eu
 cd "$(dirname "$0")/.."
 skill=$1; fixture=$2; family=$3; issue_file=${4:-}
+issue_num=998   # <ISSUE_NUM> in harness-rules.md when no issue file is used (P, F)
 fixture_abs=$(cd "$fixture" && pwd)
 fixtures_root=$(dirname "$fixture_abs")
 
@@ -27,8 +32,9 @@ if [ "$family" = E ] || [ "$family" = R ]; then
   if [ -z "$issue_file" ]; then
     if [ "$family" = R ]; then issue_file=issue-999.md; else issue_file=issue-998.md; fi
   fi
-  case $issue_file in /*|tests/*) ;; *) issue_file="$fixtures_root/$issue_file" ;; esac
+  [ -f "$issue_file" ] || issue_file="$fixtures_root/$issue_file"
   issue_num=$(sed -n '1s/^# Issue #\([0-9]*\).*/\1/p' "$issue_file")
+  [ -n "$issue_num" ] || { echo "build_prompt.sh: $issue_file has no '# Issue #N' header" >&2; exit 1; }
   echo "The issue (#$issue_num) and its comments, in lieu of \`gh issue view $issue_num --comments\`:"
   echo
   cat "$issue_file"
@@ -39,7 +45,8 @@ awk -v fam="$family" '
   /^### / { keep = ($2 == fam) ; next }
   /<SCENARIO OUTCOMES>/ { next }
   keep == "" || keep { print }
-' "$fixtures_root/harness-rules.md" | sed "s#<TARGET_REPO_PATH>#$fixture_abs#"
+' "$fixtures_root/harness-rules.md" \
+  | sed -e "s#<TARGET_REPO_PATH>#$fixture_abs#" -e "s#<ISSUE_NUM>#$issue_num#g"
 echo
 case $family in
   E) echo "Execute the next incomplete task now." ;;

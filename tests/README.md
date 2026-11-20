@@ -19,10 +19,13 @@ Two kinds of check live here.
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
 (GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
-(three target-repo variants, the fixture issue, and the harness rules); the
-captured runs are summarized in
-`docs/superpowers/plans/2026-11-19-claude-md-commands.md`. Keep prompts and
-captures under `tmp/` (git-ignored).
+(three target-repo variants; three issue fixtures: `issue-998.md` for E,
+`issue-999.md` and `issue-997.md` for R; and the harness rules, whose
+`<TARGET_REPO_PATH>` and `<ISSUE_NUM>` placeholders `build_prompt.sh` fills in);
+the captured runs are summarized in
+`docs/superpowers/plans/2026-11-19-claude-md-commands.md` and
+`docs/superpowers/plans/2026-11-19-replan-carries-checked-tasks.md`. Keep
+prompts and captures under `tmp/` (git-ignored).
 
 Recipe, one fresh dispatch per rep:
 

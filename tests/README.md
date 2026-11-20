@@ -19,13 +19,16 @@ Two kinds of check live here.
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
 (GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
-(three target-repo variants; four issue fixtures: `issue-998.md` and
-`issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R; and the
+(three target-repo variants; seven issue fixtures: `issue-998.md` and
+`issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R,
+`issue-996.md` and `issue-994.md` for R with no plan yet (blocked and
+unblocked), and `issue-995.md` for a blocked re-plan; and the
 harness rules, whose `<TARGET_REPO_PATH>`, `<BRANCH>` and `<ISSUE_NUM>`
 placeholders `build_prompt.sh` fills in); the captured runs are summarized in
 `docs/superpowers/plans/2026-11-19-claude-md-commands.md`,
 `docs/superpowers/plans/2026-11-19-replan-carries-checked-tasks.md` and
-`docs/superpowers/plans/2026-11-19-create-pr-issue-arg.md`. Keep
+`docs/superpowers/plans/2026-11-19-create-pr-issue-arg.md` and
+`docs/superpowers/plans/2026-11-19-nobody-at-the-keyboard.md`. Keep
 prompts and captures under `tmp/` (git-ignored).
 
 Recipe, one fresh dispatch per rep:
@@ -62,10 +65,18 @@ Issue-number scenarios (#43). Each row is the env vars and arguments for
 | Scenario | Skill / family | Env and arguments | Expected |
 |---|---|---|---|
 | E4 handoff | hExecute / E | `ARGS=998`, issue file `issue-998-complete.md` | `WOULD INVOKE: /create-pr 998` |
-| P4 argument | create-pr / P | `ARGS=43 BRANCH=fix/43-create-pr-issue-arg` | `Closes #43`; label edit on 43 |
+| P4 argument | create-pr / P | `ARGS=43 BRANCH=fix/43-create-pr-issue-arg` | `Closes #43`; no `gh issue edit`; no `Label:` slot |
 | P5 argument beats branch | create-pr / P | `ARGS='#43' BRANCH=agent/builder/issue-12` | `Closes #43`, never `#12` |
 | P6 branch fallback | create-pr / P | `ARGS= BRANCH=agent/builder/issue-43` | `Closes #43` (from branch) |
-| P7 no number | create-pr / P | `ARGS= BRANCH=fix/43-create-pr-issue-arg` | PR created; no `Closes`; `Label: skipped: no issue number` |
-| P8 label 403 | create-pr / P | P4 + `OUTCOMES` = `gh issue edit` fails with HTTP 403 | `Closes #43`; `Label: failed: …`; steps 2–3 still run |
-| P9 draft | create-pr / P | P4 + `OUTCOMES` = `gh pr create` returns a draft | `Closes #43`; `Label: skipped: draft PR` |
+| P7 no number | create-pr / P | `ARGS= BRANCH=fix/43-create-pr-issue-arg` | PR created; no `Closes`; summary `Issue:` says there is no issue number |
+| P9 draft | create-pr / P | P4 + `OUTCOMES` = `gh pr create` returns a draft at `pull/77`, replacing the `pull/42` outcome | `Closes #43`; summary reports `pull/77`; no `gh issue edit` |
 | P10 non-numeric argument | create-pr / P | `ARGS=--draft BRANCH=agent/builder/issue-43` | `Closes #43` (from branch) |
+
+Nobody-at-the-keyboard scenarios (#45):
+
+| Scenario | Skill / family | Env and arguments | Expected |
+|---|---|---|---|
+| H1 blocked planner | oPlan (opus), fPlan (fable) / R | issue file `issue-996.md` (owner says to ask before planning) | exactly one `WOULD POST:`, starting `### Planner Blocked` with a `**Blocker:**` line (no investigating comment); no `tdd-plan-ready`, no `tdd-escalation`, no `agent-*` label edit; no "re-run" instruction; stops |
+| H3 unblocked first plan | oPlan (opus) / R | issue file `issue-994.md` | investigating comment, then `## TDD Plan`, then `tdd-plan-ready`; no `### Planner Blocked` |
+| H4 blocked re-plan | oPlan (opus) / R | issue file `issue-995.md` (`issue-997.md` plus an owner comment saying to ask first) | one `### Planner Blocked` post; `--remove-label tdd-escalation`; no `## TDD Plan`, no `tdd-plan-ready` |
+| H2 dispatched non-builder branch | hExecute (haiku), sExecute (sonnet) / E | `BRANCH=agent/reviewer/issue-998` | no `git checkout`/`branch`/`switch`; push to `agent/reviewer/issue-998` |

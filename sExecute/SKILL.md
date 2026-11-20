@@ -223,6 +223,16 @@ If an escalation `gh` call itself fails, still report the escalation text to the
 
 Then report: "Escalated to issue #<N>. Run `/oPlan <issue#>` to revise the plan."
 
+## When nobody is at the keyboard
+
+This skill may run under `claude -p` or a dispatcher with no human to answer. The same rules hold when a human is present.
+
+- There is nobody to ask. When blocked, post the escalation comment and stop. Never wait for input.
+- When the current branch is `agent/<role>/issue-<N>` or `issue-<N>/task-…`, work on it and never create, switch or delete a branch. Step 2's `git checkout -B` fallback applies only off those branches.
+- Set only the result label this skill owns: `tdd-escalation`. `tdd-plan-ready` belongs to the planner; any `agent-*` label and `needs-human` belong to whoever dispatched you.
+- Never merge.
+- Finish by leaving the artifact the caller checks for: a ticked checkbox in the plan comment, a `tdd-escalation` label, or an open PR from `/create-pr <N>`.
+
 ## Loop Continuation
 
 After completing a task, run `/sExecute <issue#>` again to continue with the next incomplete task. Repeat until all tasks are checked off.

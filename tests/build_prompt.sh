@@ -87,5 +87,5 @@ case $family in
   E) echo "Execute the next incomplete task now." ;;
   P) echo "Create the PR now." ;;
   F) echo "Fix CI now." ;;
-  R) echo "Revise the plan now." ;;
+  R) if grep -q '^## TDD Plan' "$issue_file"; then echo "Revise the plan now."; else echo "Plan this issue now."; fi ;;
 esac

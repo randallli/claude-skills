@@ -40,4 +40,23 @@ for pair in "${PAIRS[@]}"; do
     fi
   done
 done
+# The "When nobody is at the keyboard" section's label line must name exactly the
+# labels the rest of that file adds or removes (`--add-label` / `--remove-label`),
+# so a copy pasted from another skill can't claim labels this skill never sets.
+for f in oPlan fPlan hExecute sExecute create-pr; do
+  file="$f/SKILL.md"
+  section=$(awk '/^## When nobody is at the keyboard$/{on=1;next} /^## /{on=0} on' "$file")
+  if [ -z "$section" ]; then
+    echo "❌ $file has no '## When nobody is at the keyboard' section"; rc=1; continue
+  fi
+  claimed=$(printf '%s\n' "$section" | grep -E '^- Set (only|no) ' | sed 's/\. .*//' \
+    | grep -oE '`[a-z][a-z-]*`' | tr -d '`' | sort -u)
+  used=$(awk '/^## When nobody is at the keyboard$/{on=1;next} /^## /{on=0} !on' "$file" \
+    | grep -oE -- '--(add|remove)-label "?[a-z][a-z-]*' | sed -E 's/.* "?//' | sort -u)
+  if [ "$claimed" = "$used" ]; then
+    echo "✅ $file: keyboard section's labels match the labels it sets"
+  else
+    echo "❌ $file: keyboard section claims [$(echo $claimed)] but the skill sets [$(echo $used)]"; rc=1
+  fi
+done
 exit $rc

@@ -26,7 +26,9 @@ This skill runs against the current checkout and creates no branch. Check out th
    ```
 
 2. **Post Investigating Comment:**
-   Use `gh` to comment on the issue:
+   First check the issue and comments from step 1 for a blocker you can already see: the issue (or a later comment) says to ask before planning, or its requirements conflict. If there is one, post no investigating comment; go to **When You Are Blocked** below and stop.
+
+   Otherwise use `gh` to comment on the issue:
 
    ```bash
    gh issue comment <N> --body "🔍 \`/fPlan\` is investigating this issue and designing a TDD plan. Please hold off for ~10 minutes until the plan is posted."
@@ -219,6 +221,42 @@ If this command is invoked because `/hExecute` escalated, build the revised plan
 5. **Fill the Notes slot.** Write `**Kept from the previous plan:**` as the first line under `### Notes`: the kept tasks (`Task 1, Task 2`), or `none (no task was checked)` when the previous plan had no `- [x]` task.
 6. Post the revised plan as a new comment (same command as Step 5).
 7. Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output
+
+## When You Are Blocked
+
+This applies to every run, first plan or revision. If the plan cannot be written because a decision or piece of information is missing (the issue or a comment says to ask, or the requirements conflict), post this comment and stop. Do not post a `## TDD Plan` and do not set `tdd-plan-ready`. Use this heading, not `### Escalation Required`: that one marks an executor escalation, and Escalation Handling reads it as a request to revise an existing plan.
+
+```bash
+body="$(mktemp)"   # never a fixed /tmp path: planners run concurrently and would clobber
+cat > "$body" <<'COMMENT'
+### Planner Blocked
+
+**Blocker:** <what decision or information is missing>
+**Attempted:** <what was read and ruled out>
+
+---
+*Blocked at /fPlan - needs a human*
+COMMENT
+gh issue comment <N> --body-file "$body" && rm -f "$body"
+```
+
+If the issue carries `tdd-escalation` (this run is a revision), remove it: the blocker is now a human's to answer, and leaving the label would dispatch this planner again.
+
+```bash
+gh issue edit <N> --remove-label tdd-escalation || true
+```
+
+Then report: "Planning is blocked on issue #<N>." Say nothing about re-running or re-labelling; that is the dispatcher's business.
+
+## When nobody is at the keyboard
+
+This skill may run under `claude -p` or a dispatcher with no human to answer. The same rules hold when a human is present.
+
+- There is nobody to ask. When blocked, post the blocked comment (see When You Are Blocked) and stop. Never wait for input.
+- Work on the branch and worktree you were started in. Never create, switch or delete branches.
+- Set only the result labels this skill owns: `tdd-plan-ready` and `tdd-escalation`. Any `agent-*` label and `needs-human` belong to whoever dispatched you.
+- Never merge.
+- Finish by leaving the artifact the caller checks for: a comment starting `## TDD Plan` plus `tdd-plan-ready`; when blocked, a comment starting `### Planner Blocked`, no `tdd-plan-ready`, and `tdd-escalation` removed.
 
 ## Output
 

@@ -9,8 +9,10 @@ Find open GitHub issues labeled `agent-should-plan` and dispatch a subagent to r
 
 ## Steps
 
-1. **List tagged issues:**
+1. **Fetch, then list tagged issues:**
+   The fetch is what makes each planner's worktree current (see Notes); run it before any dispatch.
    ```bash
+   git fetch origin
    gh issue list --label "agent-should-plan" --state open --json number,title,url --limit 50
    ```
 
@@ -30,7 +32,7 @@ Find open GitHub issues labeled `agent-should-plan` and dispatch a subagent to r
 
 ## Notes
 
-- **Keep `isolation: "worktree"`.** The planner creates no branch and writes nothing to git, so parallel runs no longer race. The worktree still gives each planner a clean checkout cut from the default branch, so it plans against current `main` instead of whatever the caller has checked out, and nothing it does touches the caller's working tree. Planners make no changes, so the worktree is auto-cleaned.
+- **Keep `isolation: "worktree"`.** The planner creates no branch and writes nothing to git, so parallel runs no longer race. The worktree gives each planner a clean checkout cut from `origin/<default branch>` as of the fetch in step 1 (that is the default `worktree.baseRef`, `fresh`; with `head` it is cut from your current HEAD instead), and nothing the planner does touches your working tree. Planners make no changes, so the worktree is auto-cleaned.
 - Remove the label *before* dispatching, not after — otherwise a second invocation of this skill (or a concurrent run) will re-plan the same issue.
 - Dispatch issues in parallel when there's more than one; each /oPlan run is independent.
 - If `gh issue edit` fails (e.g., label already removed), continue with dispatch anyway and note it in the report.

@@ -43,7 +43,7 @@ Do this:
 ## Steps
 
 0. **Read the commands**
-   Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives neither command, report "fix-ci needs a test and an analyze command in CLAUDE.md ## Commands" and stop. If it gives only one, say which is missing and skip that check in every step below. Also read the optional integration-test command: the `**Integration tests:**` bullet of the same section, if there is one; if there is none, integration tests are skipped in every step below and the summary says so. Every "test command", "analyze command" and "integration-test command" below means the command read here.
+   Take the test command and the analyze command from the target repo's `CLAUDE.md` `## Commands` section. `CLAUDE.md` is the only source — a CI workflow, README, or `scripts/` directory does not count. If `CLAUDE.md` gives neither command, report "fix-ci needs a test and an analyze command in CLAUDE.md ## Commands" and stop. If it gives only one, say which is missing and skip that check in every step below. Also read the optional integration-test command: the `**Integration tests:**` bullet of the same section, if there is one; if there is none, integration tests are skipped in every step below and the summary says so. Also read the optional file-size command: the `**File sizes:**` bullet of the same section, if there is one; if there is none, the file-size check in step 7 is skipped and the summary says so. Every "test command", "analyze command", "integration-test command" and "file-size command" below means the command read here.
 
 1. **Check CI Status**
    - Get latest CI run: `gh run list --limit 1 --json conclusion,status,workflowName,databaseId`
@@ -175,43 +175,27 @@ Do this:
 
 7. **Check File Sizes** (automatically after integration tests)
 
-   Run the file size checking script:
-   ```bash
-   ./scripts/check_file_sizes.sh
-   ```
+   Run the file-size command from step 0, if there is one. If there is none,
+   skip this step and put `File sizes: skipped: no File sizes command in
+   CLAUDE.md` in the summary. Do not substitute `wc -l`, a `scripts/` file,
+   or any other command.
 
-   Then parse the results:
-   ```bash
-   cat ./tmp/file_sizes.txt
-   ```
+   The command must print its findings; fix-ci reads only its output, never
+   a file it writes. If it prints nothing, report "the file-size command
+   printed nothing" rather than "no large files". Thresholds are the ones
+   the command (or its `CLAUDE.md` bullet) states; fix-ci has none of its own.
 
-   **File size thresholds** (from CLAUDE.md):
-   - **Source files (lib/)**: Report if > 500 lines, warn if > 600
-   - **Test files**: Report if > 800 lines, warn if > 1,000
-
-   **Report format:**
-   ```
-   Large files found:
-   - lib/presentation/game/game_screen.dart: 732 lines (⚠️ Approaching limit)
-   - test/widget/game_screen_test.dart: 1,245 lines (❌ Exceeds limit)
-
-   Refactoring suggestions:
-   - Extract mixins for game_screen.dart
-   - Split game_screen_test.dart into multiple files
-   ```
-
-   **If large files found:**
-   - Report all files exceeding thresholds
+   **If it flags large files:**
+   - Report every flagged file with its line count
    - Suggest refactoring strategies (mixins, extraction, splitting)
-   - Link to `docs/file-size-progress.md` for examples
-   - Recommend creating separate refactoring PR
+   - Recommend creating a separate refactoring PR
 
 8. **Final Summary and Next Steps**
 
    After all checks complete, provide comprehensive summary:
    - CI fixes applied and verified
    - Integration test results
-   - File size analysis
+   - File size analysis (or: `File sizes: skipped: no File sizes command in CLAUDE.md`)
    - Recommended next actions
 
 ## Usage Patterns
@@ -290,22 +274,13 @@ Running: the integration-test command from step 0 (or: skipped, none given)
 - 🎯 Coverage: Full user workflows validated
 
 ### File Size Analysis
-Scanned lib/ and test/ directories:
+Running: the file-size command from step 0 (or: `File sizes: skipped: no File sizes command in CLAUDE.md`)
 
-**Files needing attention:**
-- ⚠️ lib/presentation/game/game_screen.dart: 732 lines (approaching 600 limit)
-- ❌ test/widget/game_screen_test.dart: 1,245 lines (exceeds 1,000 limit)
+**Files the command flagged** (its line counts and limits, verbatim):
+- ❌ <file>: <n> lines (<what the command says>)
 
 **Refactoring suggestions:**
-- Extract tutorial listeners to separate mixin (game_screen.dart)
-- Split game_screen_test.dart into:
-  - game_screen_basic_test.dart (widgets, layout)
-  - game_screen_tutorial_test.dart (tutorial integration)
-  - game_screen_interaction_test.dart (user interactions)
-
-**Good files (< limits):**
-- ✅ lib/presentation/game/game_controller.dart: 407 lines
-- ✅ test/unit/domain/well_test.dart: 654 lines
+- <one per flagged file: extract a mixin, split the test file, …>
 
 ### Next Steps
 ✅ **This group**: Committed and pushed
@@ -328,7 +303,7 @@ Scanned lib/ and test/ directories:
 ## Important Notes
 
 - **Spending limit fallback**: If GitHub Actions hit spending limit, runs tests/analysis locally
-- **Automatic execution**: Command runs all checks automatically (CI fixes, integration tests, file size)
+- **Automatic execution**: Command runs all checks automatically (CI fixes; integration tests and file sizes when CLAUDE.md gives their commands)
 - **Keep PRs small**: Easier to review, faster to merge, less risk of conflicts
 - **Incremental progress**: Fix and merge blockers first, then iterative improvements
 - **Integration tests**: Run automatically after CI fixes; may skip if platform unavailable
@@ -337,7 +312,7 @@ Scanned lib/ and test/ directories:
 - **Always verify**: After fixes, review changes before committing to ensure correctness
 - **Group by type**: Related fixes in same commit/PR (all line length, all cascades, etc.)
 - **One logical change per commit**: Makes history clear and enables easy reverts if needed
-- **File size matters**: Large files (>500 lines) make Claude's Read/Edit tools less effective; automatically checked
+- **File size matters**: Large files make Claude's Read/Edit tools less effective; checked when CLAUDE.md gives a **File sizes:** command
 - **Complete workflow**: Command executes all steps from diagnosis to final recommendations
 
 ## Common CI Issues and Solutions
@@ -394,8 +369,8 @@ The `/fix-ci` command automatically executes all these steps:
    - Report pass/fail/skip status
    ↓
 10. Check File Sizes Automatically
-    - Scan lib/ and test/ directories
-    - Report files > 500/800 lines
+    - Run the file-size command from step 0, if any
+    - Report the files it flags
    ↓
 11. Generate Final Report
     - Summary of all fixes

@@ -74,9 +74,15 @@ If local settings doesn't exist, report that there's nothing to promote and exit
 - Removed: `.claude/settings.local.json`
 
 ### Next Steps
-- Commit the updated settings.json to share with your team
+- Run `/create-pr` to commit and share the updated settings.json
 - Local-only testing complete - permissions now team-wide
 ```
+
+## Post-Completion Suggestion
+
+After displaying the summary, and only if `.claude/settings.json` was updated (not when there was nothing to promote, nothing new to add, or the JSON was invalid), suggest:
+
+> Settings promoted. Run `/create-pr` to share the updated `.claude/settings.json` with your team.
 
 ## Edge Cases
 

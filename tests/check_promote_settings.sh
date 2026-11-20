@@ -22,4 +22,11 @@ else
 fi
 forbid_refs "references to the old upgrade-settings name" 'upgrade-settings' \
   --exclude-dir=superpowers --exclude-dir=.git --exclude-dir=tmp --exclude-dir=tests . || rc=1
+suggestion='> Settings promoted. Run `/create-pr` to share the updated `.claude/settings.json` with your team.'
+if grep -qF -- "$suggestion" promote-settings/SKILL.md &&
+  awk '/^## Post-Completion Suggestion$/{on=1;next} /^## /{on=0} on' promote-settings/SKILL.md | grep -qF -- "$suggestion"; then
+  echo "✅ promote-settings suggests /create-pr under ## Post-Completion Suggestion"
+else
+  echo "❌ promote-settings/SKILL.md lacks the /create-pr suggestion under ## Post-Completion Suggestion"; rc=1
+fi
 exit $rc

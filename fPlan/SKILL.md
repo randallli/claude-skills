@@ -27,7 +27,7 @@ You are the planning phase of a two-phase TDD workflow. Your job is to analyze r
    Use `gh` to comment on the issue:
 
    ```bash
-   gh issue comment <N> --body "🔍 \`/oPlan\` is investigating this issue and designing a TDD plan. Please hold off for ~10 minutes until the plan is posted."
+   gh issue comment <N> --body "🔍 \`/fPlan\` is investigating this issue and designing a TDD plan. Please hold off for ~10 minutes until the plan is posted."
    ```
 
 3. **Analyze Codebase (Architectural Audit):**

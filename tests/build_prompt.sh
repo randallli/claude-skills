@@ -33,8 +33,11 @@ echo
 echo "<skill>"
 if [ "${ARGS+set}" = set ]; then
   if grep -q '\$ARGUMENTS' "$skill/SKILL.md"; then
+    # Assign, then print: bash 3.2 keeps the replacement's quotes as literal
+    # characters when the expansion sits inside a double-quoted word.
     content=$(<"$skill/SKILL.md")
-    printf '%s\n' "${content//\$ARGUMENTS/"$ARGS"}"
+    content=${content//\$ARGUMENTS/"$ARGS"}
+    printf '%s\n' "$content"
   else
     cat "$skill/SKILL.md"
     if [ -n "$ARGS" ]; then echo "ARGUMENTS: $ARGS"; fi

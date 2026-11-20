@@ -156,3 +156,8 @@ git commit -m "Add my-skill"
 | `sExecute` | TDD Executor (Sonnet) — same as `hExecute`, for more complex tasks |
 | `execute-tagged-issues` | Dispatch the executor the plan's `### Recommended Executor` section names on each issue labelled `agent-should-execute` |
 | `fix-ci` | Diagnose and fix CI failures incrementally — handles Flutter test failures, analyzer warnings, and build issues |
+
+There is no PR-review skill. v1's Evaluator was removed (#64) because v2 drops
+its holdout half and defers its review half until merge goes automatic
+(tripleli/DarkFactory#11, #18). For a findings pass on a PR in the meantime,
+run `/code-review medium <PR> --comment`.

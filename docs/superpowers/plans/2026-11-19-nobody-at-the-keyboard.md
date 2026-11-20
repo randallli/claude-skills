@@ -77,6 +77,6 @@ Changes from the review:
 
 Not changed: with the swap gone, a hand run of `/create-pr` sets no
 `ready-for-review`. Only dispatchers add `agent-started`
-(`execute-tagged-issues` step 5 makes the swap itself). `evaluate-pr` is
-dispatched by the scheduler's `ready-for-review` route, which its reconcile
-pass serves, so no hand-run path is stranded.
+(`execute-tagged-issues` step 5 makes the swap itself). No factory route
+serves `ready-for-review`; the label is only a status for a human to read, so
+no hand-run path is stranded.

@@ -220,6 +220,37 @@ If this command is invoked because `/hExecute` escalated, build the revised plan
 6. Post the revised plan as a new comment (same command as Step 5).
 7. Remove the `tdd-escalation` label: `gh issue edit <N> --remove-label tdd-escalation || true` — if it fails (e.g., the label was already removed), continue and note it in the output
 
+### When You Are Blocked
+
+If the plan cannot be written because a decision or piece of information is missing (the issue itself says to ask, or the requirements conflict), post this comment and stop. Do not post a `## TDD Plan` and do not set `tdd-plan-ready` or `tdd-escalation` (that label means "needs /fPlan review", so setting it would re-dispatch this very run):
+
+```bash
+body="$(mktemp)"   # never a fixed /tmp path: planners run concurrently and would clobber
+cat > "$body" <<'COMMENT'
+### Escalation Required
+
+**Stage:** planning
+**Blocker:** <what decision or information is missing>
+**Attempted:** <what was read and ruled out>
+
+---
+*Escalated by /fPlan - needs a human*
+COMMENT
+gh issue comment <N> --body-file "$body" && rm -f "$body"
+```
+
+Then report: "Escalated to issue #<N>: planning is blocked." Say nothing about re-running or re-labelling; that is the dispatcher's business.
+
+## When nobody is at the keyboard
+
+This skill may run under `claude -p` or a dispatcher with no human to answer. The same rules hold when a human is present.
+
+- There is nobody to ask. When blocked, post the escalation comment and stop. Never wait for input.
+- Work on the branch and worktree you were started in. Never create, switch or delete branches.
+- Set only the result labels this skill owns: `tdd-plan-ready` and `tdd-escalation`. Any `agent-*` label and `needs-human` belong to whoever dispatched you.
+- Never merge.
+- Finish by leaving the artifact the caller checks for: a comment starting `## TDD Plan` plus `tdd-plan-ready`; when blocked, a comment starting `### Escalation Required` and no label.
+
 ## Output
 
 After posting the plan comment, use the comment URL that `gh issue comment` printed in Step 5. Summarize the plan (on an escalation, name the kept tasks) and end with:

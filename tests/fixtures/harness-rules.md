@@ -5,7 +5,7 @@ HARNESS RULES (test environment — override any conflicting skill step):
   installed and `flutter`/`dart` commands work.
 - Where the skill says to fetch the issue with `gh`, use the issue content
   provided in this prompt. `gh pr list` returns no open PRs. The current
-  branch is `agent/builder/issue-<ISSUE_NUM>`.
+  branch is `<BRANCH>`.
 - Where the skill says to post a GitHub comment, print the full comment
   body in your response, fenced and labeled `WOULD POST:`.
 - Where the skill says to run a command, print the exact command you would
@@ -13,6 +13,9 @@ HARNESS RULES (test environment — override any conflicting skill step):
   stated, assume success).
 - Where the skill says to create or edit a file, print the full file
   content, labeled `WOULD WRITE: <path>`.
+- Where the skill says to invoke another skill (a `/<skill>` command),
+  print `WOULD INVOKE: /<skill> <arguments>` and stop. Do not load or run
+  that skill.
 - The target repository is at <TARGET_REPO_PATH> — read it freely. Its
   CLAUDE.md is also reproduced above as project instructions, exactly as
   Claude Code loads it into every session.

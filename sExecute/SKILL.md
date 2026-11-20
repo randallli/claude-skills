@@ -42,7 +42,7 @@ You are the execution phase of a two-phase TDD workflow. Your job is to implemen
    its body (a re-review, an escalation) must never be mistaken for the plan itself. Take the
    last match, consistent with "the most recent" above.
 
-   **If every task in the plan is already checked (`- [x]`), the work order is done — this is not this step's job to repeat.** Invoke `/create-pr` now and stop: do not start another Red-Green-Refactor cycle, and do not just report "run `/create-pr`" as text without calling it. `/create-pr` is staged into this same worktree specifically for this handoff.
+   **If every task in the plan is already checked (`- [x]`), the work order is done — this is not this step's job to repeat.** Invoke `/create-pr <N>` now — pass the issue number this run was given — and stop: do not start another Red-Green-Refactor cycle, and do not just report "run `/create-pr`" as text without calling it. `/create-pr` is staged into this same worktree specifically for this handoff.
 
    Note the task's Type tag — `(Setup)`, `(BDD)`, or `(TDD)` — from the task title; it changes the Red phase below. Tasks without a tag are TDD.
 

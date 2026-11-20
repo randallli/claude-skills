@@ -11,6 +11,16 @@
 #                A path that does not exist as given is looked up under the
 #                fixtures root. Its first line must be `# Issue #N ...`; N also
 #                fills <ISSUE_NUM> in harness-rules.md (998 when no issue is used).
+# Optional env vars (each a no-op when unset):
+#   ARGS      invocation argument, rendered as Claude Code does: substituted for
+#             $ARGUMENTS in SKILL.md, or appended as a final "ARGUMENTS: <ARGS>"
+#             line when SKILL.md has no $ARGUMENTS and ARGS is non-empty.
+#             Set-ness counts, so ARGS= (empty) is an invocation with no argument.
+#   BRANCH    current branch stated in the harness rules. Unlike ARGS, empty
+#             means unset: BRANCH= falls back to agent/builder/issue-<ISSUE_NUM>.
+#   OUTCOMES  path to a file appended verbatim after the family's stated
+#             outcomes. Pre-format it like the family blocks in harness-rules.md:
+#             "  - " starts each outcome, deeper indent continues one.
 set -eu
 cd "$(dirname "$0")/.."
 skill=$1; fixture=$2; family=$3; issue_file=${4:-}
@@ -21,7 +31,17 @@ fixtures_root=$(dirname "$fixture_abs")
 echo "You must follow the skill instructions below."
 echo
 echo "<skill>"
-cat "$skill/SKILL.md"
+if [ "${ARGS+set}" = set ]; then
+  if grep -q '\$ARGUMENTS' "$skill/SKILL.md"; then
+    content=$(<"$skill/SKILL.md")
+    printf '%s\n' "${content//\$ARGUMENTS/"$ARGS"}"
+  else
+    cat "$skill/SKILL.md"
+    if [ -n "$ARGS" ]; then echo "ARGUMENTS: $ARGS"; fi
+  fi
+else
+  cat "$skill/SKILL.md"
+fi
 echo "</skill>"
 echo
 echo "<project-instructions path=\"CLAUDE.md\">"
@@ -41,12 +61,24 @@ if [ "$family" = E ] || [ "$family" = R ]; then
   echo
 fi
 # Harness rules: common part, then only this family's outcome block.
-awk -v fam="$family" '
+# Placeholders are replaced with bash expansion, not sed, so `#` and `&` in a
+# path or branch name are taken literally (the replacement is quoted, which
+# bash 5.2+ needs to keep `&` literal). The trailing "x" keeps the block's final
+# blank line, which command substitution would otherwise strip.
+rules=$(awk -v fam="$family" '
   /^### / { keep = ($2 == fam) ; next }
   /<SCENARIO OUTCOMES>/ { next }
   keep == "" || keep { print }
-' "$fixtures_root/harness-rules.md" \
-  | sed -e "s#<TARGET_REPO_PATH>#$fixture_abs#" -e "s#<ISSUE_NUM>#$issue_num#g"
+' "$fixtures_root/harness-rules.md"; echo x)
+rules=${rules%x}
+branch=${BRANCH:-agent/builder/issue-$issue_num}
+rules=${rules//<TARGET_REPO_PATH>/"$fixture_abs"}
+rules=${rules//<BRANCH>/"$branch"}
+rules=${rules//<ISSUE_NUM>/"$issue_num"}
+printf '%s' "$rules"
+if [ -n "${OUTCOMES:-}" ]; then
+  cat "$OUTCOMES"
+fi
 echo
 case $family in
   E) echo "Execute the next incomplete task now." ;;

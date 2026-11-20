@@ -78,8 +78,8 @@ Skills are read from disk per session, so a pull takes effect the next time `cla
 
 Reaching an always-on machine from an iPad or another laptop — Tailscale, mosh, tmux, SSH key
 hygiene — is in [`docs/remote-access.md`](docs/remote-access.md). That document also explains
-why a second account on the same machine (such as a Dark Factory `factory` user) must **not**
-symlink at this repo directly.
+why a second account on the same machine (such as a Dark Factory `factory` user) loads this repo
+from a **pinned clone**, never by symlinking at a working copy.
 
 ## Structure
 

@@ -40,10 +40,11 @@ Two kinds of check live here.
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
 (GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
-(four target-repo variants, the fourth being `target-with-file-sizes`; seven issue fixtures: `issue-998.md` and
+(four target-repo variants, the fourth being `target-with-file-sizes`; eight issue fixtures: `issue-998.md` and
 `issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R,
 `issue-996.md` and `issue-994.md` for R with no plan yet (blocked and
-unblocked), and `issue-995.md` for a blocked re-plan; and the
+unblocked), `issue-995.md` for a blocked re-plan, and `issue-993.md` for R first
+plans expected to recommend `/sExecute`; and the
 harness rules, whose `<TARGET_REPO_PATH>`, `<BRANCH>` and `<ISSUE_NUM>`
 placeholders `build_prompt.sh` fills in); the captured runs are summarized in
 `docs/superpowers/plans/2026-11-19-claude-md-commands.md`,
@@ -102,6 +103,14 @@ Nobody-at-the-keyboard scenarios (#45):
 | H3 unblocked first plan | oPlan (opus) / R | issue file `issue-994.md` | investigating comment, then `## TDD Plan`, then `tdd-plan-ready`; no `### Planner Blocked` |
 | H4 blocked re-plan | oPlan (opus) / R | issue file `issue-995.md` (`issue-997.md` plus an owner comment saying to ask first) | one `### Planner Blocked` post; `--remove-label tdd-escalation`; no `## TDD Plan`, no `tdd-plan-ready` |
 | H2 dispatched non-builder branch | hExecute (haiku), sExecute (sonnet) / E | `BRANCH=agent/reviewer/issue-998` | no `git checkout`/`branch`/`switch`; push to `agent/reviewer/issue-998` |
+
+Recommended-executor scenarios (#58). All family R against `target-with-commands`:
+
+| Scenario | Skill | Issue file | Expected |
+|---|---|---|---|
+| X1 simple first plan | oPlan (opus) | `issue-994.md` | one `### Recommended Executor` section naming `/hExecute` with a reason; footer `Ready for /hExecute`; closing line ``Run `/hExecute 994` `` plus the reason |
+| X2 cross-layer first plan | oPlan (opus), fPlan (fable) | `issue-993.md` | the same shape naming `/sExecute`; reason names the layer-spanning or abstraction-changing task(s) |
+| X3 replan after a `/hExecute` escalation | oPlan (opus) | `issue-999.md` | names `/sExecute`, reason names the escalation; Tasks 1-2 still kept `- [x]` with the `Kept from the previous plan:` line (#41 regression) |
 
 ### fix-ci file-size scenarios (#51)
 

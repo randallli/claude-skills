@@ -8,10 +8,11 @@ Two kinds of check live here.
   `sExecute`, `create-pr`, `fix-ci` or `README.md` name a project-local test or
   analyze script (`scripts/run_*`, `run_tests.sh`, `analyze_results`). The
   skills take those commands from the target repo's `CLAUDE.md` instead.
-- `bash tests/check_sync.sh` — the **analyze** command. Fails if
-  `hExecute/SKILL.md` and `sExecute/SKILL.md` differ anywhere other than
-  frontmatter, the KEEP IN SYNC comment, and `/hExecute`↔`/sExecute`
-  self-references.
+- `bash tests/check_sync.sh` — the **analyze** command. Checks each KEEP IN
+  SYNC pair (`hExecute`/`sExecute`, `oPlan`/`fPlan`). Fails if the two files
+  differ anywhere other than frontmatter, the KEEP IN SYNC comment, and the
+  pair's self-references, or if a file names its partner where it should name
+  itself (a copied `/oPlan` inside `fPlan`).
 
 ## Behavioral scenarios (subagent dispatch)
 

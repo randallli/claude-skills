@@ -8,9 +8,8 @@ covers only *reaching* the machine. Do the README setup first; nothing here depe
 nothing there depends on this.
 
 > **`mini1` is user-operated.** Run these commands yourself in a terminal. Agents don't execute
-> against that box — a Dark Factory convention, documented in `factory`'s `skills/README.md`
-> (landing with [TripleLiDarkFactory/factory#25](https://github.com/TripleLiDarkFactory/factory/pull/25)).
-> Everything below is written as copy-paste for a human.
+> against that box — a Dark Factory convention. Everything below is written as copy-paste for a
+> human.
 
 ## The shape of it
 
@@ -203,9 +202,9 @@ claude setup-token
 It prints a URL to authorize in a browser. If it insists on a local browser, run it from a
 GUI session on the machine (Screen Sharing) rather than over SSH — you only do this once.
 
-This is the same pattern the headless Dark Factory agents already use: the `factory` account
-authenticates from `~/.claude/.credentials.json` (mode `600`), not the keychain, which is
-precisely why its launchd-driven sessions work unattended.
+A headless account has to work the same way. The `factory` user on the mini authenticates from
+`~/.claude/.credentials.json` (mode `600`), not the keychain; a launchd-driven session that
+depended on the keychain could never get past this prompt unattended.
 
 Verify from a *fresh* SSH session — not the one you set it up in:
 
@@ -227,26 +226,29 @@ Skills are per-account. Everything in this document and in the README sets up **
 `~/.claude`. A second account on the same machine (`admin`, `factory`, …) has its own
 `~/.claude` and gets nothing from your setup.
 
-That isolation is deliberate, and on `mini1` it is load-bearing: the `factory` account does
-**not** consume this repo. It symlinks `~/.claude/skills` at a checkout of
-[`TripleLiDarkFactory/factory`](https://github.com/TripleLiDarkFactory/factory)'s `skills/`
-directory, which holds *versioned copies* ported from here and guarded by a regression suite.
-That repo's rule is "all GitHub Apps read this repo; only humans write to it."
+That isolation is deliberate, and on `mini1` it is load-bearing. The `factory` account runs the
+same skills you do, from this repo, but **never from a working copy**. It clones this repo at a
+pinned commit or tag, and the worker loads the skills from that clone — either by
+`claude -p --plugin-dir` or by staging the clone into the worktree's `.claude/skills/`;
+[tripleli/DarkFactory#8](https://github.com/tripleli/DarkFactory/issues/8) records which. The pin
+lives in the factory's config (`skills.ref`), and **moving the pin is the review step**: an
+unreviewed edit in your checkout cannot reach a running worker.
 
-**Do not point a factory account at this repo directly.** The port from here into
-`factory/skills/` is the promotion gate — it's reviewed as a PR and tested, so an unfinished
-skill edit can't silently change autonomous agent behavior mid-run. A direct symlink would
-bypass that gate and create two sources of truth.
+**Do not symlink a factory account's `~/.claude/skills` at this checkout, or at any working copy
+of this repo.** That bypasses the pin, so an unfinished skill edit could change autonomous agent
+behavior mid-run. To promote a change: merge it here, then move the pin to the new commit or tag.
+The design behind this is the
+[v2 design](https://github.com/tripleli/DarkFactory/blob/main/docs/specs/2026-11-18-v2-label-poller-design.md),
+§5.1–5.2.
 
-Bootstrap instructions for the `factory` user live in that repo's `skills/README.md`, not here.
-That file lands with [TripleLiDarkFactory/factory#25](https://github.com/TripleLiDarkFactory/factory/pull/25);
-until it merges, `factory/skills/` on `main` still holds only placeholder stubs, so the factory
-agents have no real skill content yet.
+Setting up the `factory` user itself — the clone at `skills.ref`, `factory.yml`, the worker
+settings file — is documented in [`tripleli/DarkFactory`](https://github.com/tripleli/DarkFactory),
+not here: the v2 design's §5.1 for the config and §7 for where it lives and the migration order.
 
 One macOS detail worth knowing: home directories are `drwxr-x---` with group `staff`, and these
 accounts share that group, so they **can** read each other's files. Cross-account symlinking is
 therefore technically possible. Don't — it couples the accounts, breaks if permissions tighten,
-and bypasses the gate above.
+and bypasses the pin above.
 
 ## Verification
 

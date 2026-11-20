@@ -103,8 +103,8 @@ Claude Code loads skills from `~/.claude/skills/` automatically. The skill's dir
 commands from the target repo's `CLAUDE.md`, from its `## Commands` section, and
 from nowhere else: not a CI workflow, not a README, not a `scripts/` directory.
 The section looks like this (the shape tripleli/VisualTimers#126 landed). **Test**
-and **Analyze** are required; **Integration tests** is optional and only `fix-ci`
-uses it; every other bullet is ignored by these skills:
+and **Analyze** are required; **Integration tests** and **File sizes** are
+optional and only `fix-ci` uses them; every other bullet is ignored by these skills:
 
 ```markdown
 ## Commands
@@ -114,6 +114,7 @@ uses it; every other bullet is ignored by these skills:
 - **Analyze:** `flutter analyze --no-fatal-infos` (CI's exact flags; must exit 0)
 - **Format:** `dart format <changed files>` — format only the files you touch
 - **Integration tests:** `bash tool/run_integration_tests.sh` (optional)
+- **File sizes:** `bash tool/check_file_sizes.sh` (optional)
 ```
 
 When a command is missing:
@@ -125,7 +126,8 @@ When a command is missing:
   both are missing does it skip local validation entirely; the PR still stands.
 - `fix-ci` reads both in its step 0. If both are missing it reports and stops;
   if one is missing it says which and skips that check throughout. Without an
-  **Integration tests** bullet it skips integration tests and says so.
+  **Integration tests** bullet it skips integration tests and says so. Without a **File sizes** bullet it skips
+  the file-size check and says so.
 
 This repo's own `CLAUDE.md` follows the same shape (its test has no single-file
 form), and `tests/README.md` describes how skill behavior is verified.

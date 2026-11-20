@@ -11,8 +11,9 @@ Two kinds of check live here.
   loudly instead of reading as a pass).
   - `bash tests/check_stale_refs.sh` fails if `hExecute`, `sExecute`,
     `create-pr`, `fix-ci` or `README.md` name a project-local test or analyze
-    script (`scripts/run_*`, `run_tests.sh`, `analyze_results`). The skills
-    take those commands from the target repo's `CLAUDE.md` instead.
+    script (`scripts/run_*`, `run_tests.sh`, `analyze_results`) or a file-size
+    script or report (`scripts/check_file_sizes`, `file_sizes.txt`,
+    `file-size-progress`). The skills take those commands from the target repo's `CLAUDE.md` instead.
   - `bash tests/check_v1_refs.sh` fails if anything under `docs/` (except
     `docs/superpowers/`, which records past work) or `README.md` names the v1
     Dark Factory promotion path. Matched, case-insensitively: the v1 org
@@ -33,7 +34,7 @@ Two kinds of check live here.
 A change to what a skill *does* is verified the way `superpowers:writing-skills`
 prescribes: run the scenario without the change (RED baseline), then with it
 (GREEN), reading every rep by hand. Fixtures are committed under `tests/fixtures/`
-(three target-repo variants; seven issue fixtures: `issue-998.md` and
+(four target-repo variants, the fourth being `target-with-file-sizes`; seven issue fixtures: `issue-998.md` and
 `issue-998-complete.md` for E, `issue-999.md` and `issue-997.md` for R,
 `issue-996.md` and `issue-994.md` for R with no plan yet (blocked and
 unblocked), and `issue-995.md` for a blocked re-plan; and the
@@ -42,7 +43,8 @@ placeholders `build_prompt.sh` fills in); the captured runs are summarized in
 `docs/superpowers/plans/2026-11-19-claude-md-commands.md`,
 `docs/superpowers/plans/2026-11-19-replan-carries-checked-tasks.md` and
 `docs/superpowers/plans/2026-11-19-create-pr-issue-arg.md` and
-`docs/superpowers/plans/2026-11-19-nobody-at-the-keyboard.md`. Keep
+`docs/superpowers/plans/2026-11-19-nobody-at-the-keyboard.md` and
+`docs/superpowers/plans/2026-11-19-fix-ci-file-sizes.md`. Keep
 prompts and captures under `tmp/` (git-ignored).
 
 Recipe, one fresh dispatch per rep:
@@ -94,3 +96,13 @@ Nobody-at-the-keyboard scenarios (#45):
 | H3 unblocked first plan | oPlan (opus) / R | issue file `issue-994.md` | investigating comment, then `## TDD Plan`, then `tdd-plan-ready`; no `### Planner Blocked` |
 | H4 blocked re-plan | oPlan (opus) / R | issue file `issue-995.md` (`issue-997.md` plus an owner comment saying to ask first) | one `### Planner Blocked` post; `--remove-label tdd-escalation`; no `## TDD Plan`, no `tdd-plan-ready` |
 | H2 dispatched non-builder branch | hExecute (haiku), sExecute (sonnet) / E | `BRANCH=agent/reviewer/issue-998` | no `git checkout`/`branch`/`switch`; push to `agent/reviewer/issue-998` |
+
+### fix-ci file-size scenarios (#51)
+
+| Scenario | Fixture / args | Expected (GREEN) |
+|---|---|---|
+| F4 | `bash tests/build_prompt.sh fix-ci tests/fixtures/target-with-commands F` (no **File sizes** bullet) | No `WOULD RUN:` naming `check_file_sizes`, `file_sizes.txt` or `wc`. Step 0 says there is no file-size command; the File Size section says skipped. |
+| F5 | `OUTCOMES=tmp/prompts/F5-outcomes.md bash tests/build_prompt.sh fix-ci tests/fixtures/target-with-file-sizes F` | Exactly one file-size `WOULD RUN: bash tool/check_file_sizes.sh`; its stated output appears in the File Size section; no `./scripts/` or `./tmp/file_sizes.txt`. |
+
+`F5-outcomes.md` holds one bullet:
+`  - `bash tool/check_file_sizes.sh`: `12 lib/counter.dart`, `20 test/counter_test.dart`, `32 total``

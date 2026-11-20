@@ -47,3 +47,11 @@ HARNESS RULES (test environment — override any conflicting skill step):
     lib/counter.dart:4)`; any run after you edit `lib/counter.dart`:
     `No issues found!`
   - `dart fix --dry-run`: `Nothing to fix!`
+
+### R (planner replan)
+  - The issue and its comments are in the prompt; use them in lieu of
+    `gh issue view`. `gh issue comment` prints the body as `WOULD POST:`.
+  - `gh issue edit`, `gh label create`, `gh api`, `git checkout`, `git pull`:
+    `WOULD RUN:`, succeed (a `gh api` read of a comment body returns the
+    matching comment from the prompt).
+  - The target repo at <TARGET_REPO_PATH> may be read for the architectural audit.
